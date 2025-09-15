@@ -1,23 +1,8 @@
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  //TODO: Implement HomeController
-
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
+  var saldo = 150000.obs;
+  var topupBulanan = 500000.obs;
+  var totalJajan = 200000.obs;
+  var totalHutang = 50000.obs;
 }
