@@ -21,7 +21,7 @@ class LoginView extends GetView<LoginController> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Logo
-                  Image.asset('assets/icons/logomysaku.png', height: 72),
+                  Image.asset('assets/icons/logo.png', height: 72),
                   SizedBox(height: 32),
 
                   // Title
@@ -37,7 +37,7 @@ class LoginView extends GetView<LoginController> {
 
                   // Subtitle
                   Text(
-                    "Welcome Back to MySaku!",
+                    "Selamat datang di SakuWali",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[700],
@@ -161,7 +161,7 @@ class LoginView extends GetView<LoginController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account? ",
+                        "Belum Punya akun? silahkan ",
                         style: TextStyle(color: Colors.black87),
                       ),
                       GestureDetector(
@@ -169,7 +169,7 @@ class LoginView extends GetView<LoginController> {
                         child: Text(
                           "Sign Up",
                           style: TextStyle(
-                            color: Color(0xFF1B8A4E),
+                            color: Colors.orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

@@ -23,7 +23,7 @@ class RegisterView extends GetView<RegisterController> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Logo
-                  Image.asset('assets/icons/logomysaku.png', height: 72),
+                  Image.asset('assets/icons/logo.png', height: 72),
                   SizedBox(height: 32),
 
                   // Title
@@ -39,7 +39,7 @@ class RegisterView extends GetView<RegisterController> {
 
                   // Subtitle
                   Text(
-                    'Welcome Back to MySaku!',
+                    'Selamat datang di SakuWali',
                     style: TextStyle(
                       color: Colors.grey[700],
                       fontSize: 14,
@@ -236,7 +236,7 @@ class RegisterView extends GetView<RegisterController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Already have account? ",
+                        "Sudah punya akun? silahkan ",
                         style: TextStyle(color: Colors.black87),
                       ),
                       GestureDetector(
@@ -246,7 +246,7 @@ class RegisterView extends GetView<RegisterController> {
                         child: Text(
                           "Sign In",
                           style: TextStyle(
-                            color: Color(0xFF1B8A4E),
+                            color: Colors.orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

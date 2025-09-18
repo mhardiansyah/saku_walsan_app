@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class ForgotpasswordController extends GetxController {
   // Observables untuk email dan pesan error
@@ -30,6 +31,11 @@ class ForgotpasswordController extends GetxController {
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
     );
+
+    // Navigasi ke halaman OTP setelah berhasil kirim email
+    Future.delayed(const Duration(seconds: 1), () {
+      Get.toNamed(Routes.OTP);
+    });
   }
 
   // Optional override

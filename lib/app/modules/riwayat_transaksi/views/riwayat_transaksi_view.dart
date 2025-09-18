@@ -1,9 +1,6 @@
-// ignore_for_file: unused_import
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:saku_walsan_app/app/modules/home/views/home_view.dart';
-import 'package:saku_walsan_app/app/routes/app_pages.dart';
+import 'package:intl/intl.dart';
 import '../controllers/riwayat_transaksi_controller.dart';
 
 class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
@@ -15,97 +12,431 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Get.back(),
         ),
         title: const Text(
           'Riwayat Transaksi',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF1B8A4E),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          /// --- FILTER TANGGAL ---
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            /// --- Search Field ---
+            TextField(
+              decoration: InputDecoration(
+                hintText: "Masukan nama Santri",
+                prefixIcon: const Icon(Icons.search),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 16,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            /// --- Filter Buttons (Hari & Sesi) ---
+            Row(
               children: [
+                // --- Filter Hari ---
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2030),
-                      );
-                      if (picked != null) {
-                        controller.filterByDate(picked);
-                      }
-                    },
-                    icon: const Icon(Icons.date_range),
-                    label: Obx(() => Text(
-                          controller.selectedDate.value != null
-                              ? "${controller.selectedDate.value!.day}-${controller.selectedDate.value!.month}-${controller.selectedDate.value!.year}"
-                              : "Pilih Tanggal",
-                        )),
+                  child: Obx(
+                    () => GestureDetector(
+                      onTap: () {
+                        Get.dialog(
+                          Dialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Obx(
+                                    () => Column(
+                                      children: [
+                                        RadioListTile<String>(
+                                          title: const Text("Hari Ini"),
+                                          value: "Hari ini",
+                                          groupValue:
+                                              controller.selectedHari.value,
+                                          activeColor:
+                                              Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedHari.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Perminggu"),
+                                          value: "Minggu ini",
+                                          groupValue:
+                                              controller.selectedHari.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedHari.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Perbulan"),
+                                          value: "Bulan ini",
+                                          groupValue:
+                                              controller.selectedHari.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedHari.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Pertahun"),
+                                          value: "Tahun ini",
+                                          groupValue:
+                                              controller.selectedHari.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedHari.value =
+                                                val!;
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF1B8A4E,
+                                        ), // hijau
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+                                      child: const Text(
+                                        "Terapkan",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B8A4E),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              controller.selectedHari.value,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // --- Filter Sesi ---
+                Expanded(
+                  child: Obx(
+                    () => GestureDetector(
+                      onTap: () {
+                        Get.dialog(
+                          Dialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Obx(
+                                    () => Column(
+                                      children: [
+                                        RadioListTile<String>(
+                                          title: const Text("Semua"),
+                                          value: "Semua",
+                                          groupValue:
+                                              controller.selectedSesi.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedSesi.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Pagi"),
+                                          value: "Pagi",
+                                          groupValue:
+                                              controller.selectedSesi.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedSesi.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Siang"),
+                                          value: "Siang",
+                                          groupValue:
+                                              controller.selectedSesi.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedSesi.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Sore"),
+                                          value: "Sore",
+                                          groupValue:
+                                              controller.selectedSesi.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedSesi.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
+                                          title: const Text("Malam"),
+                                          value: "Malam",
+                                          groupValue:
+                                              controller.selectedSesi.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.selectedSesi.value =
+                                                val!;
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF1B8A4E,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+                                      child: const Text(
+                                        "Terapkan",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B8A4E),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              controller.selectedSesi.value,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
-            ),
-          ),
+            ),  
 
-          /// --- LIST TRANSAKSI ---
-          Expanded(
-            child: Obx(
-              () => ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: controller.filteredTransaksi.length,
-                separatorBuilder: (context, index) =>
-                    const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final transaksi = controller.filteredTransaksi[index];
-                  final isJajan = transaksi['tipe'] == "jajan";
-                  final isTopup = transaksi['tipe'] == "topup";
-                  final isHutang = transaksi['tipe'] == "hutang";
+            const SizedBox(height: 20),
 
-                  Color color = Colors.blue;
-                  IconData icon = Icons.payment;
+            /// --- List Riwayat ---
+            Expanded(
+              child: Obx(
+                () => ListView.builder(
+                  itemCount: controller.filteredTransaksi.length,
+                  itemBuilder: (context, index) {
+                    final transaksi = controller.filteredTransaksi[index];
 
-                  if (isJajan) {
-                    color = Colors.orange;
-                    icon = Icons.fastfood_rounded;
-                  } else if (isTopup) {
-                    color = Colors.green;
-                    icon = Icons.trending_up_rounded;
-                  } else if (isHutang) {
-                    color = Colors.red;
-                    icon = Icons.warning_amber_rounded;
-                  }
+                    final String nama = transaksi['nama'] ?? 'Santri';
+                    final String kelas = transaksi['kelas'] ?? '-';
+                    final String judul = transaksi['judul'] ?? '';
+                    final int jumlah = transaksi['jumlah'] ?? 0;
+                    final DateTime tanggal = transaksi['tanggal'] as DateTime;
+                    final String tanggalStr = DateFormat(
+                      'dd MMM yyyy',
+                    ).format(tanggal);
+                    final String tipe = transaksi['tipe'] ?? '';
 
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: color.withOpacity(0.2),
-                      child: Icon(icon, color: color),
-                    ),
-                    title: Text(transaksi['judul']),
-                    subtitle: Text(transaksi['tanggal']),
-                    trailing: Text(
-                      "${isTopup ? '+' : '-'} Rp ${transaksi['jumlah']}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: isTopup ? Colors.green : Colors.red,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ),
-                  );
-                },
+                      child: Row(
+                        children: [
+                          // Avatar
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Colors.grey[200],
+                            child: const Icon(Icons.person, color: Colors.grey),
+                          ),
+                          const SizedBox(width: 12),
+
+                          // Nama, kelas & judul
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  kelas,
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  judul,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Jumlah + tanggal
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                tanggalStr,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Rp ${jumlah.toString()}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: tipe == "hutang"
+                                      ? Colors.red[100]
+                                      : Colors.green[100],
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  tipe == "hutang" ? "Hutang" : "Lunas",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: tipe == "hutang"
+                                        ? Colors.red
+                                        : Colors.green[700],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

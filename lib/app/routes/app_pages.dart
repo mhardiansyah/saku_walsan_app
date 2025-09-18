@@ -1,17 +1,31 @@
 import 'package:get/get.dart';
 
+import '../modules/detail_notifikasi/bindings/detail_notifikasi_binding.dart';
+import '../modules/detail_notifikasi/views/detail_notifikasi_view.dart';
+import '../modules/detail_riwayat/bindings/detail_riwayat_binding.dart';
+import '../modules/detail_riwayat/views/detail_riwayat_view.dart';
 import '../modules/forgotpassword/bindings/forgotpassword_binding.dart';
 import '../modules/forgotpassword/views/forgotpassword_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/isi_data_siswa/bindings/isi_data_siswa_binding.dart';
+import '../modules/isi_data_siswa/views/isi_data_siswa_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
+import '../modules/notifikasi/bindings/notifikasi_binding.dart';
+import '../modules/notifikasi/views/notifikasi_view.dart';
+import '../modules/otp/bindings/otp_binding.dart';
+import '../modules/otp/views/otp_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/regsiter_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/resent_password/bindings/resent_password_binding.dart';
+import '../modules/resent_password/views/resent_password_view.dart';
+import '../modules/riwayat_hutang/bindings/riwayat_hutang_binding.dart';
+import '../modules/riwayat_hutang/views/riwayat_hutang_view.dart';
 import '../modules/riwayat_transaksi/bindings/riwayat_transaksi_binding.dart';
 import '../modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
@@ -64,6 +78,41 @@ class AppPages {
       name: _Paths.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.ISI_DATA_SISWA,
+      page: () => const IsiDataSiswaView(),
+      binding: IsiDataSiswaBinding(),
+    ),
+    GetPage(
+      name: _Paths.OTP,
+      page: () => const OtpView(),
+      binding: OtpBinding(),
+    ),
+    GetPage(
+      name: _Paths.RESENT_PASSWORD,
+      page: () => const ResentPasswordView(),
+      binding: ResentPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_RIWAYAT,
+      page: () => const DetailRiwayatView(),
+      binding: DetailRiwayatBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFIKASI,
+      page: () => const NotifikasiView(),
+      binding: NotifikasiBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_NOTIFIKASI,
+      page: () => const DetailNotifikasiView(),
+      binding: DetailNotifikasiBinding(),
+    ),
+    GetPage(
+      name: _Paths.RIWAYAT_HUTANG,
+      page: () => const RiwayatHutangView(),
+      binding: RiwayatHutangBinding(),
     ),
   ];
 }

@@ -8,6 +8,7 @@ import 'package:saku_walsan_app/app/modules/main_navigation/controllers/main_nav
 import 'package:saku_walsan_app/app/modules/profile/views/profile_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
+import 'package:saku_walsan_app/app/modules/riwayat_hutang/views/riwayat_hutang_view.dart';
 
 class MainNavigationView extends GetView<MainNavigationController> {
   MainNavigationView({super.key});
@@ -15,9 +16,9 @@ class MainNavigationView extends GetView<MainNavigationController> {
   @override
   final pages = [
     HomeView(),
-    HomeView(),
-    SizedBox(), // Placeholder for Top up
     RiwayatTransaksiView(),
+    SizedBox(), // Placeholder for Top up
+    RiwayatHutangView(),
     ProfileView(),
   ];
 
@@ -89,15 +90,15 @@ class MainNavigationView extends GetView<MainNavigationController> {
                       isLandscape: isLandscape,
                     ),
                     _buildNavItem(
-                      Icons.store,
-                      "Toko",
+                      Icons.history,
+                      "Riwayat Transaksi",
                       1,
                       isLandscape: isLandscape,
                     ),
                     const SizedBox(width: 40), // Space for FAB
                     _buildNavItem(
-                      Icons.history,
-                      "Riwayat",
+                      Icons.history_toggle_off,
+                      "Riwayat Hutang",
                       3,
                       isLandscape: isLandscape,
                     ),

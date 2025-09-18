@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:saku_walsan_app/app/modules/forgotpassword/controllers/forgotpassword_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
-class ForgotpasswordView extends GetView<ForgotpasswordController> {
-  const ForgotpasswordView({super.key});
+class OtpView extends StatelessWidget {
+  const OtpView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F6FA), // Sama seperti LoginView
+      backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
         child: Stack(
           children: [
@@ -23,14 +22,14 @@ class ForgotpasswordView extends GetView<ForgotpasswordController> {
               ),
             ),
 
-            // Form di tengah
+            // Form OTP di tengah
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 40),
@@ -38,7 +37,7 @@ class ForgotpasswordView extends GetView<ForgotpasswordController> {
                       // Logo
                       Image.asset(
                         'assets/icons/logo.png',
-                        height: 72, // Sesuaikan tinggi logo dengan LoginView
+                        height: 72,
                       ),
                       const SizedBox(height: 32),
 
@@ -55,45 +54,49 @@ class ForgotpasswordView extends GetView<ForgotpasswordController> {
 
                       // Subtitle
                       Text(
-                        "Masukan Email Anda",
+                        "Masukan OTP yang sudah dikirim ke email Anda",
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[700],
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
 
-                      // Email Label
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Email",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Email Field
-                      Obx(
-                        () => TextField(
-                          onChanged: (value) => controller.email.value = value,
-                          decoration: InputDecoration(
-                            hintText: "Masukan Email Anda",
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            errorText: controller.emailError.value,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
+                      // OTP Fields
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(
+                          6,
+                          (index) => SizedBox(
+                            width: 50,
+                            height: 60,
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              keyboardType: TextInputType.number,
+                              maxLength: 1,
+                              decoration: InputDecoration(
+                                counterText: "",
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF1B8A4E), // hijau utama
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
                             ),
-                            filled: true,
-                            fillColor: Color(0xFFFFFFFF), // Field terang seperti LoginView
                           ),
-                          style: const TextStyle(color: Colors.black87),
-                          keyboardType: TextInputType.emailAddress,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -103,7 +106,7 @@ class ForgotpasswordView extends GetView<ForgotpasswordController> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: controller.submitEmail,
+                          onPressed: () => Get.toNamed(Routes.RESENT_PASSWORD),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1B8A4E),
                             shape: RoundedRectangleBorder(
@@ -112,7 +115,8 @@ class ForgotpasswordView extends GetView<ForgotpasswordController> {
                           ),
                           child: const Text(
                             "Kirim",
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                            style: TextStyle(
+                                fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
@@ -123,12 +127,12 @@ class ForgotpasswordView extends GetView<ForgotpasswordController> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Klik disini untuk ",
+                            "Sudah punya akun? ",
                             style: TextStyle(color: Colors.black87),
                           ),
                           GestureDetector(
                             onTap: () => Get.toNamed(Routes.LOGIN),
-                            child: Text(
+                            child: const Text(
                               "Login",
                               style: TextStyle(
                                 color: Colors.orange,

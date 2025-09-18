@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -10,182 +9,148 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
+
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1B8A4E),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        title: Row(
+          children: [
+            const CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.orange,
+              child: Icon(Icons.person, color: Colors.white),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Hello Siti",
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                  Text(
+                    "Wali Abqory",
+                    style: TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Row(
+                children: const [
+                  Text(
+                    "Hari ini",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                  ),
+                  Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Icon(Icons.notifications_none, color: Colors.white),
+          ],
+        ),
+      ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// --- SALDO UTAMA SEBAGAI KARTU ---
-            Obx(
-              () => Container(
-                height: 180,
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [Colors.indigo.shade600, Colors.blue.shade300],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(3, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// Baris atas: icon wallet + label
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Icon(Icons.account_balance_wallet_rounded,
-                            color: Colors.white, size: 36),
-                        Text(
-                          "Saldo Anak",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-
-                    /// Nominal saldo
-                    Text(
-                      "Rp ${controller.saldo.value}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    /// Info tambahan seperti tanggal update
-                    const Text(
-                      "Terakhir diperbarui: 11 Sept 2025",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
+            /// --- SALDO ---
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B8A4E),
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-
-            const SizedBox(height: 24),
-
-            /// --- RINGKASAN KEUANGAN ---
-            const Text(
-              "Ringkasan Keuangan",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Obx(
-              () => GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // pastikan semua ke kiri
                 children: [
-                  _buildInfoCard(
-                    title: "Total Jajan",
-                    value: "Rp ${controller.totalJajan.value}",
-                    color: Colors.orange,
-                    icon: Icons.fastfood_rounded,
+                  const Text(
+                    "Transaksi anak Hari ini:",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  _buildInfoCard(
-                    title: "Total Hutang",
-                    value: "Rp ${controller.totalHutang.value}",
-                    color: Colors.red,
-                    icon: Icons.warning_amber_rounded,
+                  const SizedBox(height: 8),
+                  const Text(
+                    "RP. 10.000.000",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  _buildInfoCard(
-                    title: "Topup Bulanan",
-                    value: "Rp ${controller.topupBulanan.value}",
-                    color: Colors.green,
-                    icon: Icons.trending_up_rounded,
-                  ),
-                  _buildInfoCard(
-                    title: "Sisa Saldo",
-                    value: "Rp ${controller.saldo.value}",
-                    color: Colors.blue,
-                    icon: Icons.account_balance_wallet_rounded,
+                  const SizedBox(height: 12),
+
+                  /// tombol rata kiri
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {},
+                      icon: const Icon(Icons.list, color: Colors.white),
+                      label: const Text(
+                        "Lihat Detail",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            /// --- RIWAYAT JAJAN ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            /// --- 3 CARD ---
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1,
               children: [
-                const Text(
-                  "Aktivitas Jajan Anak",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                _buildSummaryCard(
+                  "Total Transaksi",
+                  "20",
+                  Colors.green,
+                  "assets/icons/dolars.png",
+                  "+10",
                 ),
-                TextButton(
-                  onPressed: () {
-                    Get.toNamed(Routes.RIWAYAT_TRANSAKSI);
-                  },
-                  child: const Text(
-                    "Lihat Semua",
-                    style: TextStyle(color: Colors.blue),
-                  ),
+                _buildSummaryCard(
+                  "Total Kasbon",
+                  "300K",
+                  Colors.red,
+                  "assets/icons/kasbon.png",
+                  "+10",
+                ),
+                _buildSummaryCard(
+                  "Total Top up",
+                  "20",
+                  Colors.blue,
+                  "assets/icons/dolars.png",
+                  "+10",
                 ),
               ],
-            ),
-            const SizedBox(height: 12),
-
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 3, // hanya 3 data terbaru
-                separatorBuilder: (context, index) =>
-                    const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.orange.shade100,
-                      child: const Icon(Icons.fastfood, color: Colors.orange),
-                    ),
-                    title: Text("Jajan di Kantin #${index + 1}"),
-                    subtitle: const Text("11 Sept 2025"),
-                    trailing: Text(
-                      "- Rp ${(10000 + (index * 2000))}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -193,48 +158,90 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildInfoCard({
-    required String title,
-    required String value,
-    required Color color,
-    required IconData icon,
-  }) {
+  Widget _buildSummaryCard(
+    String title,
+    String value,
+    Color color,
+    String imagePath,
+    String badge,
+  ) {
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.9),
+        color: color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(3, 5),
-          ),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 32, color: Colors.white),
-            const Spacer(),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+            /// --- Icon + Title sejajar ---
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF2CC), // krem/kuning muda
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      imagePath,
+                      width: 18,
+                      height: 18,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            )
+
+            const SizedBox(height: 24),
+
+            /// --- Value + Badge sejajar ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    badge,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: color, // warna badge mengikuti card
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

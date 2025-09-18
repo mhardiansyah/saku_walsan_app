@@ -11,6 +11,13 @@ abstract class Routes {
   static const MAIN_NAVIGATION = _Paths.MAIN_NAVIGATION;
   static const RIWAYAT_TRANSAKSI = _Paths.RIWAYAT_TRANSAKSI;
   static const PROFILE = _Paths.PROFILE;
+  static const ISI_DATA_SISWA = _Paths.ISI_DATA_SISWA;
+  static const OTP = _Paths.OTP;
+  static const RESENT_PASSWORD = _Paths.RESENT_PASSWORD;
+  static const DETAIL_RIWAYAT = _Paths.DETAIL_RIWAYAT;
+  static const NOTIFIKASI = _Paths.NOTIFIKASI;
+  static const DETAIL_NOTIFIKASI = _Paths.DETAIL_NOTIFIKASI;
+  static const RIWAYAT_HUTANG = _Paths.RIWAYAT_HUTANG;
 }
 
 abstract class _Paths {
@@ -23,4 +30,11 @@ abstract class _Paths {
   static const MAIN_NAVIGATION = '/main-navigation';
   static const RIWAYAT_TRANSAKSI = '/riwayat-transaksi';
   static const PROFILE = '/profile';
+  static const ISI_DATA_SISWA = '/isi-data-siswa';
+  static const OTP = '/otp';
+  static const RESENT_PASSWORD = '/resent-password';
+  static const DETAIL_RIWAYAT = '/detail-riwayat';
+  static const NOTIFIKASI = '/notifikasi';
+  static const DETAIL_NOTIFIKASI = '/detail-notifikasi';
+  static const RIWAYAT_HUTANG = '/riwayat-hutang';
 }
