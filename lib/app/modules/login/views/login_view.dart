@@ -38,10 +38,7 @@ class LoginView extends GetView<LoginController> {
                   // Subtitle
                   Text(
                     "Selamat datang di SakuWali",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                   ),
                   SizedBox(height: 32),
 
@@ -141,17 +138,24 @@ class LoginView extends GetView<LoginController> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: controller.login,
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : controller.login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF1B8A4E),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
-                        "Log In",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
+                      child: controller.isLoading.value
+                          ? CircularProgressIndicator()
+                          : Text(
+                              "Log In",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                   SizedBox(height: 20),

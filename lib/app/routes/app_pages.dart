@@ -14,6 +14,8 @@ import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
+import '../modules/nominal/bindings/nominal_binding.dart';
+import '../modules/nominal/views/nominal_view.dart';
 import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
 import '../modules/otp/bindings/otp_binding.dart';
@@ -35,8 +37,7 @@ part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
-
-  static const INITIAL = Routes.MAIN_NAVIGATION;
+  static const INITIAL = Routes.SPLASH_SCREEN;
 
   static final routes = [
     GetPage(
@@ -113,6 +114,11 @@ class AppPages {
       name: _Paths.RIWAYAT_HUTANG,
       page: () => const RiwayatHutangView(),
       binding: RiwayatHutangBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOMINAL,
+      page: () => NominalView(),
+      binding: NominalBinding(),
     ),
   ];
 }

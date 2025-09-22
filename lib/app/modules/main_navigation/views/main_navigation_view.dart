@@ -9,6 +9,7 @@ import 'package:saku_walsan_app/app/modules/profile/views/profile_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_hutang/views/riwayat_hutang_view.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class MainNavigationView extends GetView<MainNavigationController> {
   MainNavigationView({super.key});
@@ -25,12 +26,12 @@ class MainNavigationView extends GetView<MainNavigationController> {
   @override
   Widget build(BuildContext context) {
     if (!Get.isRegistered<HomeController>()) {
-    Get.put(HomeController());
-  }
+      Get.put(HomeController());
+    }
 
     if (!Get.isRegistered<RiwayatTransaksiController>()) {
-    Get.put(RiwayatTransaksiController());
-  }
+      Get.put(RiwayatTransaksiController());
+    }
 
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
@@ -51,18 +52,7 @@ class MainNavigationView extends GetView<MainNavigationController> {
                   0xFFFDBD03,
                 ), // Warna kuning sesuai desain
                 onPressed: () {
-                  Get.dialog(
-                    AlertDialog(
-                      title: const Text('Coming Soon'),
-                      content: const Text('This feature is under development.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
+                  Get.toNamed(Routes.NOMINAL);
                 },
                 child: Icon(
                   Icons.add,

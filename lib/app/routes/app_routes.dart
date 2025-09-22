@@ -18,6 +18,7 @@ abstract class Routes {
   static const NOTIFIKASI = _Paths.NOTIFIKASI;
   static const DETAIL_NOTIFIKASI = _Paths.DETAIL_NOTIFIKASI;
   static const RIWAYAT_HUTANG = _Paths.RIWAYAT_HUTANG;
+  static const NOMINAL = _Paths.NOMINAL;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const NOTIFIKASI = '/notifikasi';
   static const DETAIL_NOTIFIKASI = '/detail-notifikasi';
   static const RIWAYAT_HUTANG = '/riwayat-hutang';
+  static const NOMINAL = '/nominal';
 }
