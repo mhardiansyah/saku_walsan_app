@@ -11,19 +11,17 @@ class NominalView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF4634CC)),
           onPressed: () => Get.back(),
         ),
-        title: Obx(
-          () => Text(
-            'Top Up',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
+        title: const Text(
+          'Top Up',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -42,7 +40,7 @@ class NominalView extends StatelessWidget {
                 const Text(
                   "Pilih nominal",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -53,47 +51,36 @@ class NominalView extends StatelessWidget {
                 // Input nominal reactive
                 SizedBox(
                   width: isDesktop ? 600 : 400,
-                  child: Obx(() {
-                    return TextField(
-                      key: ValueKey(controller.inputText.value),
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: controller.updateNominalFromText,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                      decoration: InputDecoration(
-                        hintText: "Masukkan nominal",
-                        hintStyle: const TextStyle(color: Colors.white54),
-                        filled: true,
-                        fillColor: const Color(0xFF0F172A),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Colors.white70),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Colors.white70),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Colors.white),
-                        ),
+                  child: TextField(
+                    controller: controller.textController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: controller.updateNominalFromText,
+                    style: const TextStyle(color: Colors.black, fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: "Masukkan nominal",
+                      hintStyle: const TextStyle(color: Colors.black),
+                      filled: true,
+                      fillColor: Colors.grey[300],
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 16,
                       ),
-                      controller:
-                          TextEditingController(
-                              text: controller.inputText.value,
-                            )
-                            ..selection = TextSelection.fromPosition(
-                              TextPosition(
-                                offset: controller.inputText.value.length,
-                              ),
-                            ),
-                    );
-                  }),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.black38),
+                      ),
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 32),
@@ -106,7 +93,7 @@ class NominalView extends StatelessWidget {
                     children: [
                       const Text(
                         "Jumlah cepat*",
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        style: TextStyle(color: Colors.black87, fontSize: 14),
                       ),
                       const SizedBox(height: 12),
                       Obx(() {
@@ -118,9 +105,7 @@ class NominalView extends StatelessWidget {
                           itemCount: controller.quickAmounts.length,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: isDesktop
-                                    ? 4
-                                    : 2, // ✅ Responsive kolom
+                                crossAxisCount: isDesktop ? 4 : 2,
                                 childAspectRatio: 3.0,
                                 crossAxisSpacing: 12,
                                 mainAxisSpacing: 12,
@@ -132,8 +117,8 @@ class NominalView extends StatelessWidget {
                             return OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: isSelected
-                                    ? const Color(0xFF4634CC)
-                                    : Colors.transparent,
+                                    ? Colors.green[300]
+                                    : Colors.grey[300],
                                 side: const BorderSide(color: Colors.white54),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -147,7 +132,7 @@ class NominalView extends StatelessWidget {
                                 style: TextStyle(
                                   color: isSelected
                                       ? Colors.white
-                                      : Colors.white70,
+                                      : Colors.black,
                                 ),
                               ),
                             );
@@ -172,22 +157,20 @@ class NominalView extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4634CC),
+              backgroundColor: const Color(0xFF22AD61),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
             onPressed: () async {
+              controller.topUpSaldo();
               debugPrint(
                 "Nominal dipilih: ${controller.selectedNominal.value}",
               );
             },
-            child: Obx(
-              () => Text(
-                // controller.transaksiType.value == TransaksiType.topUp
-                "Top Up",
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
+            child: const Text(
+              "Top Up",
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
         ),
