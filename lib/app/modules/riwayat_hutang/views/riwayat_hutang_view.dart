@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
   const RiwayatHutangView({super.key});
@@ -75,8 +76,10 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                               controller.selectedHari.value,
                               style: const TextStyle(color: Colors.white),
                             ),
-                            const Icon(Icons.arrow_drop_down,
-                                color: Colors.white),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -109,8 +112,10 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                               controller.selectedSesi.value,
                               style: const TextStyle(color: Colors.white),
                             ),
-                            const Icon(Icons.arrow_drop_down,
-                                color: Colors.white),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -124,36 +129,43 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
 
             /// --- List Riwayat Hutang ---
             Expanded(
-              child: Obx(
-                () {
-                  final hutangList = controller.filteredTransaksi
-                      .where((t) => t['tipe'] == 'hutang')
-                      .toList();
+              child: Obx(() {
+                final hutangList = controller.filteredTransaksi
+                    .where((t) => t['tipe'] == 'hutang')
+                    .toList();
 
-                  if (hutangList.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Belum ada hutang",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  }
+                if (hutangList.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "Belum ada hutang",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
 
-                  return ListView.builder(
-                    itemCount: hutangList.length,
-                    itemBuilder: (context, index) {
-                      final transaksi = hutangList[index];
+                return ListView.builder(
+                  itemCount: hutangList.length,
+                  itemBuilder: (context, index) {
+                    final transaksi = hutangList[index];
 
-                      final String nama = transaksi['nama'] ?? 'Santri';
-                      final String kelas = transaksi['kelas'] ?? '-';
-                      final String judul = transaksi['judul'] ?? '';
-                      final int jumlah = transaksi['jumlah'] ?? 0;
-                      final DateTime tanggal =
-                          transaksi['tanggal'] as DateTime;
-                      final String tanggalStr =
-                          DateFormat('dd MMM yyyy').format(tanggal);
+                    final String nama = transaksi['nama'] ?? 'Santri';
+                    final String kelas = transaksi['kelas'] ?? '-';
+                    final String judul = transaksi['judul'] ?? '';
+                    final int jumlah = transaksi['jumlah'] ?? 0;
+                    final DateTime tanggal = transaksi['tanggal'] as DateTime;
+                    final String tanggalStr = DateFormat(
+                      'dd MMM yyyy',
+                    ).format(tanggal);
 
-                      return Container(
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        Get.toNamed(
+                          Routes.DETAIL_RIWAYAT,
+                          arguments: transaksi,
+                        );
+                      },
+                      child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -173,8 +185,10 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                             CircleAvatar(
                               radius: 28,
                               backgroundColor: Colors.grey[200],
-                              child: const Icon(Icons.person,
-                                  color: Colors.grey),
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(width: 12),
 
@@ -245,11 +259,11 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                             ),
                           ],
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),

@@ -9,6 +9,7 @@ import 'package:saku_walsan_app/app/modules/profile/views/profile_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_hutang/views/riwayat_hutang_view.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class MainNavigationView extends GetView<MainNavigationController> {
   MainNavigationView({super.key});
@@ -51,18 +52,19 @@ class MainNavigationView extends GetView<MainNavigationController> {
                   0xFFFDBD03,
                 ), // Warna kuning sesuai desain
                 onPressed: () {
-                  Get.dialog(
-                    AlertDialog(
-                      title: const Text('Coming Soon'),
-                      content: const Text('This feature is under development.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
+                  Get.toNamed(Routes.NOMINAL);
+                  // Get.dialog(
+                  //   AlertDialog(
+                  //     title: const Text('Coming Soon'),
+                  //     content: const Text('This feature is under development.'),
+                  //     actions: [
+                  //       TextButton(
+                  //         onPressed: () => Get.back(),
+                  //         child: const Text('OK'),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // );
                 },
                 child: Icon(
                   Icons.add,
@@ -76,7 +78,7 @@ class MainNavigationView extends GetView<MainNavigationController> {
             bottomNavigationBar: BottomAppBar(
               shape: const CircularNotchedRectangle(),
               notchMargin: 8,
-              color: const Color(0xFF1B8A4E), // Warna ungu utama sesuai desain
+              color: const Color(0xFF1B8A4E),
               child: Container(
                 height: isLandscape ? 60 : 70,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
