@@ -45,7 +45,7 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                 fillColor: Colors.white,
               ),
               onChanged: (val) {
-                controller.searchQuery.value = val;
+                // controller.searchQuery.value = val;
               },
             ),
             const SizedBox(height: 16),
@@ -131,7 +131,7 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
             Expanded(
               child: Obx(() {
                 final hutangList = controller.filteredTransaksi
-                    .where((t) => t['tipe'] == 'hutang')
+                    .where((t) => t == 'hutang')
                     .toList();
 
                 if (hutangList.isEmpty) {
@@ -148,117 +148,105 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                   itemBuilder: (context, index) {
                     final transaksi = hutangList[index];
 
-                    final String nama = transaksi['nama'] ?? 'Santri';
-                    final String kelas = transaksi['kelas'] ?? '-';
-                    final String judul = transaksi['judul'] ?? '';
-                    final int jumlah = transaksi['jumlah'] ?? 0;
-                    final DateTime tanggal = transaksi['tanggal'] as DateTime;
+                    final String nama = transaksi.santri.name ?? 'Santri';
+                    final String kelas = transaksi.santri.kelas ?? '-';
+                    // final String judul = transaksi ?? '';
+                    final int jumlah = transaksi.totalAmount ?? 0;
+                    final DateTime tanggal = transaksi.createdAt as DateTime;
                     final String tanggalStr = DateFormat(
                       'dd MMM yyyy',
                     ).format(tanggal);
 
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        Get.toNamed(
-                          Routes.DETAIL_RIWAYAT,
-                          arguments: transaksi,
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            // Avatar
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundColor: Colors.grey[200],
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Avatar
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Colors.grey[200],
+                            child: const Icon(Icons.person, color: Colors.grey),
+                          ),
+                          const SizedBox(width: 12),
 
-                            // Nama, kelas & judul
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    nama,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    kelas,
-                                    style: TextStyle(color: Colors.grey[700]),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    judul,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Jumlah + tanggal
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                          // Nama, kelas & judul
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  tanggalStr,
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "Rp ${jumlah.toString()}",
+                                  nama,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                                    fontSize: 16,
                                   ),
+                                ),
+                                Text(
+                                  kelas,
+                                  style: TextStyle(color: Colors.grey[700]),
                                 ),
                                 const SizedBox(height: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[100],
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Text(
-                                    "Hutang",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ),
+                                // Text(
+                                //   judul,
+                                //   style: const TextStyle(fontSize: 14),
+                                // ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+
+                          // Jumlah + tanggal
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                tanggalStr,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Rp ${jumlah.toString()}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[100],
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  "Hutang",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },

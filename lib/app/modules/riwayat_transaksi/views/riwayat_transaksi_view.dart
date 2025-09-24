@@ -325,15 +325,15 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                   itemBuilder: (context, index) {
                     final transaksi = controller.filteredTransaksi[index];
 
-                    final String nama = transaksi['nama'] ?? 'Santri';
-                    final String kelas = transaksi['kelas'] ?? '-';
-                    final String judul = transaksi['judul'] ?? '';
-                    final int jumlah = transaksi['jumlah'] ?? 0;
-                    final DateTime tanggal = transaksi['tanggal'] as DateTime;
+                    final String nama = transaksi.santri.name ?? 'Santri';
+                    final String kelas = transaksi.santri.kelas ?? '-';
+                    // final String judul = transaksi ?? '';
+                    final int jumlah = transaksi.totalAmount ?? 0;
+                    final DateTime tanggal = transaksi.createdAt as DateTime;
                     final String tanggalStr = DateFormat(
                       'dd MMM yyyy',
                     ).format(tanggal);
-                    final String tipe = transaksi['tipe'] ?? '';
+                    final String tipe = transaksi.status ?? '';
 
                     return InkWell(
                       borderRadius: BorderRadius.circular(12),
@@ -370,30 +370,30 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                             ),
                             const SizedBox(width: 12),
 
-                            // Nama, kelas & judul
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    nama,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                          // Nama, kelas & judul
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                  Text(
-                                    kelas,
-                                    style: TextStyle(color: Colors.grey[700]),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    judul,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                Text(
+                                  kelas,
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                                const SizedBox(height: 4),
+                                // Text(
+                                //   judul,
+                                //   style: const TextStyle(fontSize: 14),
+                                // ),
+                              ],
                             ),
+                          ),
 
                             // Jumlah + tanggal
                             Column(
