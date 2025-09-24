@@ -160,13 +160,6 @@ class HomeView extends GetView<HomeController> {
                   "assets/icons/kasbon.png",
                   "+10",
                 ),
-                _buildSummaryCard(
-                  "Total Top up",
-                  "20",
-                  Colors.blue,
-                  "assets/icons/dolars.png",
-                  "+10",
-                ),
               ],
             ),
           ],
