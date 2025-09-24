@@ -57,7 +57,6 @@ class NominalController extends GetxController {
 
   void setData(Kartu data) {
     santriId.value = data.data.santri.id;
-    parentId.value = data.data.santri.parentId;
   }
 
   void updateNominalFromText(String value) {

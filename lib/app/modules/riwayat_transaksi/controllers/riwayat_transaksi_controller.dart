@@ -1,48 +1,59 @@
 // ignore_for_file: invalid_use_of_protected_member
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:saku_walsan_app/app/core/models/history_models.dart';
 
 class RiwayatTransaksiController extends GetxController {
-  var transaksiList = <Map<String, dynamic>>[
-    {
-      "nama": "Santri A",
-      "kelas": "XI RPL 1",
-      "judul": "Jajan di Kantin",
-      "tanggal": DateTime(2025, 9, 16, 8, 30),
-      "jumlah": 15000,
-      "tipe": "jajan",
-    },
-    {
-      "nama": "Santri B",
-      "kelas": "XI RPL 2",
-      "judul": "Topup Bulanan",
-      "tanggal": DateTime(2025, 9, 10, 14, 15),
-      "jumlah": 200000,
-      "tipe": "topup",
-    },
-    {
-      "nama": "Santri C",
-      "kelas": "XI TKJ 1",
-      "judul": "Hutang Kantin",
-      "tanggal": DateTime(2025, 9, 9, 19, 0),
-      "jumlah": 5000,
-      "tipe": "hutang",
-    },
-  ].obs;
+  var url = dotenv.env['base_url'];
+  var allHistoryList = <HistoryDetail>[].obs;
+  var isLoading = false.obs;
 
   var selectedHari = "Hari ini".obs;
   var selectedSesi = "Semua".obs;
 
-  List<Map<String, dynamic>> get filteredTransaksi {
-    final now = DateTime.now();
-    List<Map<String, dynamic>> list = transaksiList;
+  final box = GetStorage();
 
-    // Filter hari
+  @override
+  void onInit() {
+    super.onInit();
+    final santriId = box.read('santri_id');
+    if (santriId != null) {
+      fetchRiwayatTransaksi(santriId);
+    } else {
+      print("⚠️ santri_id belum ada di storage");
+    }
+  }
+
+  void fetchRiwayatTransaksi(int santriId) async {
+    try {
+      isLoading.value = true;
+      var urlRiwayatTransaksi = Uri.parse("$url/history/santri/$santriId");
+      final response = await http.get(urlRiwayatTransaksi);
+
+      if (response.statusCode == 200) {
+        final data = historyFromJson(response.body);
+        allHistoryList.value = data.historyDetail;
+      } else {
+        Get.snackbar('Error', 'Failed to fetch transaction history');
+      }
+    } catch (e) {
+      print("Error fetching transaction history: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  List<HistoryDetail> get filteredTransaksi {
+    final now = DateTime.now();
+    var list = allHistoryList.toList();
+
+    // filter hari
     list = list.where((t) {
-      final d = t["tanggal"] as DateTime;
+      final d = t.createdAt;
       switch (selectedHari.value) {
-        case "Semua":
-          return true;
         case "Hari ini":
           return DateFormat('yyyy-MM-dd').format(d) ==
               DateFormat('yyyy-MM-dd').format(now);
@@ -60,12 +71,10 @@ class RiwayatTransaksiController extends GetxController {
       }
     }).toList();
 
-    // Filter sesi
+    // filter sesi
     list = list.where((t) {
-      final h = (t["tanggal"] as DateTime).hour;
+      final h = t.createdAt.hour;
       switch (selectedSesi.value) {
-        case "Semua":
-          return true;
         case "Pagi":
           return h >= 5 && h < 12;
         case "Siang":
@@ -74,18 +83,11 @@ class RiwayatTransaksiController extends GetxController {
           return h >= 15 && h < 18;
         case "Malam":
           return h >= 18 || h < 5;
-        default: // Semua
+        default:
           return true;
       }
     }).toList();
 
     return list;
-  }
-
-  get searchQuery => null;
-
-  void resetFilter() {
-    selectedHari.value = "Hari ini";
-    selectedSesi.value = "Semua";
   }
 }

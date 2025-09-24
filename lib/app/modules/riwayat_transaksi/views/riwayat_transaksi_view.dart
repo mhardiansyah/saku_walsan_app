@@ -73,8 +73,7 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           value: "Hari ini",
                                           groupValue:
                                               controller.selectedHari.value,
-                                          activeColor:
-                                              Colors.orange,
+                                          activeColor: Colors.orange,
                                           onChanged: (val) {
                                             controller.selectedHari.value =
                                                 val!;
@@ -313,7 +312,7 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                   ),
                 ),
               ],
-            ),  
+            ),
 
             const SizedBox(height: 20),
 
@@ -325,15 +324,15 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                   itemBuilder: (context, index) {
                     final transaksi = controller.filteredTransaksi[index];
 
-                    final String nama = transaksi['nama'] ?? 'Santri';
-                    final String kelas = transaksi['kelas'] ?? '-';
-                    final String judul = transaksi['judul'] ?? '';
-                    final int jumlah = transaksi['jumlah'] ?? 0;
-                    final DateTime tanggal = transaksi['tanggal'] as DateTime;
+                    final String nama = transaksi.santri.name ?? 'Santri';
+                    final String kelas = transaksi.santri.kelas ?? '-';
+                    // final String judul = transaksi ?? '';
+                    final int jumlah = transaksi.totalAmount ?? 0;
+                    final DateTime tanggal = transaksi.createdAt as DateTime;
                     final String tanggalStr = DateFormat(
                       'dd MMM yyyy',
                     ).format(tanggal);
-                    final String tipe = transaksi['tipe'] ?? '';
+                    final String tipe = transaksi.status ?? '';
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -376,10 +375,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                   style: TextStyle(color: Colors.grey[700]),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  judul,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
+                                // Text(
+                                //   judul,
+                                //   style: const TextStyle(fontSize: 14),
+                                // ),
                               ],
                             ),
                           ),

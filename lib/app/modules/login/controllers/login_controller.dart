@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:saku_walsan_app/app/core/models/santri_models.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import 'package:http/http.dart' as http;
 
@@ -88,9 +89,11 @@ class LoginController extends GetxController {
         final data = json.decode(response.body);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
+          final kartu = kartuFromJson(response.body);
           box.write('access_token', data['access_token']);
           box.write('name', data['name']);
           box.write('email', data['email']);
+          box.write('santriId', kartu.data.santri.id);
 
           print('access_token: ${box.read('access_token')}');
           Get.snackbar(

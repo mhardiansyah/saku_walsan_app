@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -14,7 +14,6 @@ class HomeView extends GetView<HomeController> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-
       appBar: AppBar(
         backgroundColor: const Color(0xFF1B8A4E),
         elevation: 0,
@@ -42,9 +41,9 @@ class HomeView extends GetView<HomeController> {
                 children: [
                   Text(
                     "Hello $userName",
-                    style: TextStyle(fontSize: 14, color: Colors.white),
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
                   ),
-                  Text(
+                  const Text(
                     "Wali santri",
                     style: TextStyle(fontSize: 12, color: Colors.white70),
                   ),
@@ -76,6 +75,7 @@ class HomeView extends GetView<HomeController> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// --- SALDO ---
             Container(
@@ -86,8 +86,7 @@ class HomeView extends GetView<HomeController> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, 
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     "Transaksi anak Hari ini:",
@@ -107,8 +106,6 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  /// tombol rata kiri
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
@@ -132,7 +129,7 @@ class HomeView extends GetView<HomeController> {
 
             const SizedBox(height: 20),
 
-            /// --- 3 CARD ---
+            /// --- SUMMARY CARDS ---
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -155,15 +152,105 @@ class HomeView extends GetView<HomeController> {
                   "assets/icons/kasbon.png",
                   "+10",
                 ),
-                _buildSummaryCard(
-                  "Total Top up",
-                  "20",
-                  Colors.blue,
-                  "assets/icons/dolars.png",
-                  "+10",
-                ),
               ],
             ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              "Berita SMK",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            Obx(() {
+              if (controller.isloading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.beritaList.isEmpty) {
+                return const Text("Belum ada berita.");
+              }
+
+              return SizedBox(
+                height: 180,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: controller.beritaList.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final berita = controller.beritaList[index];
+                    return Container(
+                      width: 220,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(16),
+                            ),
+                            child: Image.network(
+                              berita.yoastHeadJson.ogImage.first.url,
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => Container(
+                                height: 100,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.broken_image, size: 40),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  berita.title.rendered,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  DateFormat(
+                                    "dd MMMM yyyy",
+                                  ).format(berita.date),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -187,14 +274,13 @@ class HomeView extends GetView<HomeController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// --- Icon + Title sejajar ---
             Row(
               children: [
                 Container(
                   width: 32,
                   height: 32,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFFFF2CC), // krem/kuning muda
+                    color: Color(0xFFFFF2CC),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -217,10 +303,7 @@ class HomeView extends GetView<HomeController> {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
-
-            /// --- Value + Badge sejajar ---
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -233,7 +316,6 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -248,7 +330,7 @@ class HomeView extends GetView<HomeController> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: color, // warna badge mengikuti card
+                      color: color,
                     ),
                   ),
                 ),

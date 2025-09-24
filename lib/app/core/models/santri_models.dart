@@ -62,7 +62,7 @@ class Santri {
   int saldo;
   int hutang;
   String jurusan;
-  int parentId;
+  Parent? parent;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -73,7 +73,7 @@ class Santri {
     required this.saldo,
     required this.hutang,
     required this.jurusan,
-    required this.parentId,
+    this.parent,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -81,12 +81,12 @@ class Santri {
   factory Santri.fromJson(Map<String, dynamic> json) {
     return Santri(
       id: json['id'],
-      name: json['name'],
-      kelas: json['kelas'],
+      name: json['name'] ?? '',
+      kelas: json['kelas'] ?? '',
       saldo: json['saldo'] ?? 0,
       hutang: json['hutang'] ?? 0,
       jurusan: json['jurusan'] ?? '',
-      parentId: json['parentId'] ?? 0,
+      parent: json['parent'] != null ? Parent.fromJson(json['parent']) : null,
       createdAt: DateTime.parse(
         json['created_at'] ?? DateTime.now().toString(),
       ),
@@ -94,5 +94,15 @@ class Santri {
         json['updated_at'] ?? DateTime.now().toString(),
       ),
     );
+  }
+}
+
+class Parent {
+  int id;
+
+  Parent({required this.id});
+
+  factory Parent.fromJson(Map<String, dynamic> json) {
+    return Parent(id: json['id']);
   }
 }
