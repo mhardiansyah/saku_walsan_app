@@ -18,6 +18,9 @@ class LoginController extends GetxController {
   var emailError = RxnString();
   var passwordError = RxnString();
 
+  // Reactive variable for loading state
+  var isLoading = false.obs;
+
   // Reactive variable for password visibility
   var isPasswordHidden = true.obs;
   var url = dotenv.env['base_url'];
@@ -62,11 +65,12 @@ class LoginController extends GetxController {
   void login() async {
     if (validateForm()) {
       try {
+        isLoading.value = true;
         Uri urlLogin = Uri.parse('${url}/auth/login/');
         var body = jsonEncode({
           'email': email.value,
           'password': password.value,
-          'role': 'Admin',
+          'role': 'Walisantri',
         });
 
         print('URL: $urlLogin');
@@ -89,7 +93,12 @@ class LoginController extends GetxController {
           box.write('email', data['email']);
 
           print('access_token: ${box.read('access_token')}');
-          Get.snackbar('Login', 'Login berhasil!');
+          Get.snackbar(
+            'Login',
+            'Login berhasil!',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
           Get.offAllNamed(Routes.MAIN_NAVIGATION);
         } else {
           Get.snackbar(
@@ -99,9 +108,16 @@ class LoginController extends GetxController {
         }
       } catch (e) {
         Get.snackbar('Login', 'Terjadi kesalahan: $e');
+      } finally {
+        isLoading.value = false;
       }
     } else {
-      Get.snackbar('Error', 'Silakan perbaiki kesalahan di login');
+      Get.snackbar(
+        'Error',
+        'Silakan perbaiki kesalahan di login',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:saku_walsan_app/app/routes/app_pages.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -8,6 +9,9 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final box = GetStorage();
+    final userName = box.read('name') ?? 'User';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
 
@@ -19,22 +23,29 @@ class HomeView extends GetView<HomeController> {
         ),
         title: Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 20,
-              backgroundColor: Colors.orange,
-              child: Icon(Icons.person, color: Colors.white),
+              backgroundColor: getRandomColor(1),
+              child: Text(
+                getInitials(userName),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hello Siti",
+                    "Hello $userName",
                     style: TextStyle(fontSize: 14, color: Colors.white),
                   ),
                   Text(
-                    "Wali Abqory",
+                    "Wali santri",
                     style: TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                 ],
@@ -92,7 +103,7 @@ class HomeView extends GetView<HomeController> {
               ),
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment.start, // pastikan semua ke kiri
+                    CrossAxisAlignment.start, 
                 children: [
                   const Text(
                     "Transaksi anak Hari ini:",
@@ -256,5 +267,29 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
     );
+  }
+
+  String getInitials(String name) {
+    if (name.isEmpty) return "";
+    List<String> parts = name.split(" ");
+    if (parts.length == 1) {
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    } else {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+  }
+
+  Color getRandomColor(int seed) {
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.red,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.brown,
+      Colors.indigo,
+    ];
+    return colors[seed % colors.length];
   }
 }

@@ -1,46 +1,63 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:saku_walsan_app/app/core/types/transaksi_type.dart';
+import 'package:saku_walsan_app/app/core/models/santri_models.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class NominalController extends GetxController {
-  var selectedNominal = 0.obs;
+  var selectedNominal = 0.obs; // jumlah nominal
+  final textController = TextEditingController();
   var inputText = ''.obs;
+  var parentId = 0.obs;
   var santriId = 0.obs;
-  var santriName = ''.obs;
-  var transaksiType = TransaksiType.topUp.obs; // hanya untuk topUp
 
-  final quickAmounts = [100000, 200000, 300000, 400000, 500000, 600000];
+  final quickAmounts = [200000, 300000, 400000, 500000];
   final currencyFormatter = NumberFormat.currency(
     locale: 'id_ID',
     symbol: 'Rp',
     decimalDigits: 0,
   );
-
   var url = dotenv.env['base_url'];
+
+  // final controllerMain = Get.find<MainNavigationController>();
 
   @override
   void onInit() {
     super.onInit();
 
-    final arguments = Get.arguments;
-    if (arguments != null) {
-      santriId.value = arguments["santriId"] ?? 0;
-      santriName.value = arguments["santriName"] ?? 'N/A';
-    }
+    // final arguments = Get.arguments;
+    // if (arguments != null) {
+    //   santriId.value = arguments["santriId"] ?? 0;
+    //   santriName.value = arguments["nama"] ?? 'N/A';
+    //   transaksiType.value = arguments["type"] ?? 'N/A';
+    // }
 
+    ever(inputText, (val) {
+      textController.value = TextEditingValue(
+        text: val,
+        selection: TextSelection.collapsed(offset: val.length),
+      );
+    });
+
+    // Sinkronisasi inputText dengan nominal
     ever(selectedNominal, (val) {
-      inputText.value =
-          selectedNominal.value == 0 ? '' : currencyFormatter.format(selectedNominal.value);
+      inputText.value = selectedNominal.value == 0
+          ? ''
+          : currencyFormatter.format(selectedNominal.value);
     });
   }
 
   void pilihNominal(int amount) {
     selectedNominal.value = amount;
+  }
+
+  void setData(Kartu data) {
+    santriId.value = data.data.santri.id;
+    parentId.value = data.data.santri.parentId;
   }
 
   void updateNominalFromText(String value) {
@@ -52,43 +69,96 @@ class NominalController extends GetxController {
     }
   }
 
-  Future<void> topUpSaldo() async {
+  Future topUpSaldo() async {
     final amount = selectedNominal.value;
 
     if (amount <= 0) {
-      Get.snackbar('Error', 'Pilih nominal yang valid', backgroundColor: Colors.red);
+      Get.snackbar(
+        'Error',
+        'Pilih nominal yang valid',
+        backgroundColor: Colors.red,
+      );
       return;
     }
 
-    final urlTopup = Uri.parse("$url/transaksi/top-up/${santriId.value}");
+    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final body = {"orderId": orderId, "grossAmount": amount};
+
+    final urlTopup = Uri.parse("$url/midtrans/create-transaction");
 
     try {
       final response = await http.post(
         urlTopup,
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"jumlah": amount}),
+        body: jsonEncode(body),
       );
-
       final data = jsonDecode(response.body);
 
-      if (response.statusCode == 201 && data['status'] == 'success') {
-        // Get.toNamed(
-        //   Routes.NOTIF_PEMBAYARAN,
-        //   arguments: {
-        //     "santriName": santriName.value,
-        //     "total": amount,
-        //     "type": TransaksiType.topUp,
-        //     "method": "Saldo",
-        //   },
-        // );
+      if (response.statusCode == 201) {
+        final transaction = data['data'];
+        final redirectUrl = transaction['redirect_url'];
+        if (redirectUrl != null) {
+          Get.toNamed(Routes.MIDTRANS_PAYMENT, arguments: {"url": redirectUrl});
+        }
 
-        Get.snackbar("Sukses", data['msg'] ?? "Saldo berhasil ditambahkan");
+        Get.snackbar("Sukses", data['msg'] ?? "Transaksi berhasil di buat");
       } else {
         Get.snackbar("Error", data['msg'] ?? "Gagal top up");
+        print("Error : $data");
+        debugPrint("Error response: $data");
       }
     } catch (e) {
       Get.snackbar("Error", "Tidak dapat terhubung ke server");
-      debugPrint("error : $e");
+      print("error : $e");
+      debugPrint("Error response: $e");
     }
   }
+
+  // Future tarikTunai() async {
+  //   final amount = selectedNominal.value;
+
+  //   if (amount <= 0) {
+  //     Get.snackbar(
+  //       'Error',
+  //       'Pilih nominal yang valid',
+  //       backgroundColor: Colors.red,
+  //     );
+  //     return;
+  //   }
+
+  //   final urlTransaksi = Uri.parse("$url/transaksi/deduct/${santriId.value}");
+
+  //   try {
+  //     final response = await http.post(
+  //       urlTransaksi,
+  //       headers: {"Content-Type": "application/json"},
+  //       body: jsonEncode({"jumlah": amount}),
+  //     );
+  //     final data = jsonDecode(response.body);
+  //     if (response.statusCode == 201 && data['status'] == 'success') {
+  //       final data = jsonDecode(response.body);
+
+  //       Get.snackbar("Success", "Pembayaran Berhasil");
+  //       Get.toNamed(
+  //         Routes.FORGOT_PASSWORD,
+  //         arguments: {
+  //           "santriName": santriName.value,
+  //           "total": amount,
+  //           // "type": TransaksiType.tarikTunai,
+  //           // samakan dengan view
+  //           "method": "Saldo",
+  //         },
+  //       );
+  //     } else {
+  //       final error = jsonDecode(response.body);
+  //       Get.snackbar("Error", "Pembayaran Gagal");
+  //       print('status: ${response.statusCode}');
+  //       print('Error: ${error['msg']}');
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar("Error", "Terjadi kesalahan");
+  //     print('kesalahan: $e');
+  //   }
+  // }
 }
