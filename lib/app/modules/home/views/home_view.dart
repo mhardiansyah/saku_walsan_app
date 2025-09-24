@@ -68,23 +68,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             const SizedBox(width: 10),
-            InkWell(
-              borderRadius: const BorderRadius.all(Radius.circular(30)),
-              onTap: () {
-                Get.toNamed(Routes.NOTIFIKASI);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white24,
-                ),
-                child: const Icon(
-                  Icons.notifications_none,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            const Icon(Icons.notifications_none, color: Colors.white),
           ],
         ),
       ),
@@ -135,7 +119,7 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
                       onPressed: () {},
-                      icon: const Icon(Icons.visibility, color: Colors.white),
+                      icon: const Icon(Icons.list, color: Colors.white),
                       label: const Text(
                         "Lihat Detail",
                         style: TextStyle(color: Colors.white),
@@ -169,6 +153,13 @@ class HomeView extends GetView<HomeController> {
                   "300K",
                   Colors.red,
                   "assets/icons/kasbon.png",
+                  "+10",
+                ),
+                _buildSummaryCard(
+                  "Total Top up",
+                  "20",
+                  Colors.blue,
+                  "assets/icons/dolars.png",
                   "+10",
                 ),
               ],
