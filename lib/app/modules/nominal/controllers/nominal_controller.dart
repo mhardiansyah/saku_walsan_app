@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/core/models/santri_models.dart';
@@ -14,6 +15,7 @@ class NominalController extends GetxController {
   var inputText = ''.obs;
   var parentId = 0.obs;
   var santriId = 0.obs;
+  var isloading = false.obs;
 
   final quickAmounts = [200000, 300000, 400000, 500000];
   final currencyFormatter = NumberFormat.currency(
@@ -22,19 +24,19 @@ class NominalController extends GetxController {
     decimalDigits: 0,
   );
   var url = dotenv.env['base_url'];
+  final box = GetStorage();
 
   // final controllerMain = Get.find<MainNavigationController>();
 
   @override
   void onInit() {
     super.onInit();
+    var savedSantriId = box.read('santriId');
+    santriId.value = savedSantriId != null
+        ? int.tryParse(savedSantriId.toString()) ?? 0
+        : 0;
 
-    // final arguments = Get.arguments;
-    // if (arguments != null) {
-    //   santriId.value = arguments["santriId"] ?? 0;
-    //   santriName.value = arguments["nama"] ?? 'N/A';
-    //   transaksiType.value = arguments["type"] ?? 'N/A';
-    // }
+    print('Santri ID in NominalController: ${santriId.value}');
 
     ever(inputText, (val) {
       textController.value = TextEditingValue(
@@ -69,6 +71,7 @@ class NominalController extends GetxController {
   }
 
   Future topUpSaldo() async {
+    isloading.value = true;
     final amount = selectedNominal.value;
 
     if (amount <= 0) {
@@ -82,7 +85,7 @@ class NominalController extends GetxController {
 
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
 
-    final body = {"orderId": orderId, "grossAmount": amount};
+    final body = {"santriId": santriId.value, "grossAmount": amount};
 
     final urlTopup = Uri.parse("$url/midtrans/create-transaction");
 
@@ -111,6 +114,8 @@ class NominalController extends GetxController {
       Get.snackbar("Error", "Tidak dapat terhubung ke server");
       print("error : $e");
       debugPrint("Error response: $e");
+    } finally {
+      isloading.value = false;
     }
   }
 

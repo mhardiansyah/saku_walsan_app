@@ -137,27 +137,38 @@ class LoginView extends GetView<LoginController> {
                   SizedBox(
                     width: double.infinity,
                     height: 50,
-                    child: ElevatedButton(
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : controller.login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF1B8A4E),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    child: Obx(
+                      () => ElevatedButton(
+                        onPressed: controller.isLoading.value
+                            ? () {} // tombol tetap aktif tapi gak bisa di-tap
+                            : controller.login,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1B8A4E),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          disabledBackgroundColor: Color(0xFF1c7846),
                         ),
-                      ),
-                      child: controller.isLoading.value
-                          ? CircularProgressIndicator()
-                          : Text(
-                              "Log In",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
+                        child: controller.isLoading.value
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                "Log In",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ),
+
                   SizedBox(height: 20),
 
                   // Sign Up Link

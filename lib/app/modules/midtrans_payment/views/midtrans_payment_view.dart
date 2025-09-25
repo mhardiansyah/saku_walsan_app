@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../controllers/midtrans_payment_controller.dart';
@@ -31,21 +32,35 @@ class MidtransPaymentView extends GetView<MidtransPaymentController> {
               onPageStarted: (url) => debugPrint('start: $url'),
               onPageFinished: (url) => debugPrint('end: $url'),
               onNavigationRequest: (request) {
-                if (request.url.contains("success")) {
+                debugPrint("URL: ${request.url}");
+
+                if (request.url.contains("#/success")) {
                   Get.snackbar(
                     'Success',
                     'Pembayaran berhasil',
                     backgroundColor: Colors.green,
                     colorText: Colors.white,
                   );
-                } else if (request.url.contains("failed")) {
+
+                  // kasih delay buat user lihat snackbar
+                  Future.delayed(const Duration(seconds: 2), () {
+                    Get.offAllNamed(Routes.MAIN_NAVIGATION);
+                  });
+
+                  return NavigationDecision
+                      .prevent; // ⛔ stop lanjut ke example.com
+                }
+
+                if (request.url.contains("failed")) {
                   Get.snackbar(
                     'Failed',
                     'Pembayaran gagal',
                     backgroundColor: Colors.red,
                     colorText: Colors.white,
                   );
+                  return NavigationDecision.prevent;
                 }
+
                 return NavigationDecision.navigate;
               },
             ),
