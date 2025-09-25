@@ -155,22 +155,35 @@ class NominalView extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF22AD61),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+          child: Obx(
+            () => ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF22AD61),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
-            ),
-            onPressed: () async {
-              controller.topUpSaldo();
-              debugPrint(
-                "Nominal dipilih: ${controller.selectedNominal.value}",
-              );
-            },
-            child: const Text(
-              "Top Up",
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              onPressed: controller.isloading.value
+                  ? () {}
+                  : () async {
+                      controller.topUpSaldo();
+                      debugPrint(
+                        "Nominal dipilih: ${controller.selectedNominal.value}",
+                      );
+                    },
+              child: controller.isloading.value
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      "Top Up",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
             ),
           ),
         ),

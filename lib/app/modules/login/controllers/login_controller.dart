@@ -89,13 +89,36 @@ class LoginController extends GetxController {
         final data = json.decode(response.body);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          final kartu = kartuFromJson(response.body);
-          box.write('access_token', data['access_token']);
-          box.write('name', data['name']);
-          box.write('email', data['email']);
-          box.write('santriId', kartu.data.santri.id);
+          // box.write('access_token', data['access_token']);
+          // box.write('name', data['name'] ?? '');
+          // box.write('email', data['email'] ?? '');
+          // if (data['parent'] != null &&
+          //     data['parent']['santri'] != null &&
+          //     data['parent']['santri'].isNotEmpty) {
+          //   final santriId = data['parent']['santri'][0]['id'];
+          //   box.write('santriId', santriId);
+          //   print('Santri ID: $santriId');
+          // }
+          box.write('access_token', data['access_token']?.toString() ?? '');
+          box.write('refresh_token', data['refresh_token']?.toString() ?? '');
+          box.write('name', data['name']?.toString() ?? '');
+          box.write('email', data['email']?.toString() ?? '');
 
-          print('access_token: ${box.read('access_token')}');
+          if (data['parent']?['santri'] != null &&
+              (data['parent']['santri'] as List).isNotEmpty) {
+            final santriId =
+                data['parent']['santri'][0]['id']?.toString() ?? '';
+            box.write('santriId', santriId);
+          }
+
+          // print('santriId: ${box.read('santriId')}');
+          // print('access_token: ${box.read('access_token')}');
+
+          print("Decoded data: $data");
+          print("access_token: ${data['access_token']}");
+          print("name: ${data['name']}");
+          print("email: ${data['email']}");
+
           Get.snackbar(
             'Login',
             'Login berhasil!',
@@ -111,6 +134,7 @@ class LoginController extends GetxController {
         }
       } catch (e) {
         Get.snackbar('Login', 'Terjadi kesalahan: $e');
+        print('Error during login: $e');
       } finally {
         isLoading.value = false;
       }
