@@ -23,7 +23,7 @@ class RiwayatTransaksiController extends GetxController {
     if (santriId != null) {
       fetchRiwayatTransaksi(santriId);
     } else {
-      print("⚠️ santri_id belum ada di storage");
+      print("santri_id belum ada di storage");
     }
   }
 

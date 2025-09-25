@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -148,10 +150,10 @@ class RiwayatHutangView extends GetView<RiwayatTransaksiController> {
                   itemBuilder: (context, index) {
                     final transaksi = hutangList[index];
 
-                    final String nama = transaksi.santri.name ?? 'Santri';
-                    final String kelas = transaksi.santri.kelas ?? '-';
+                    final String nama = transaksi.santri.name;
+                    final String kelas = transaksi.santri.kelas;
                     // final String judul = transaksi ?? '';
-                    final int jumlah = transaksi.totalAmount ?? 0;
+                    final int jumlah = transaksi.totalAmount;
                     final DateTime tanggal = transaksi.createdAt as DateTime;
                     final String tanggalStr = DateFormat(
                       'dd MMM yyyy',

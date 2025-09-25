@@ -52,18 +52,19 @@ class MainNavigationView extends GetView<MainNavigationController> {
                   0xFFFDBD03,
                 ), // Warna kuning sesuai desain
                 onPressed: () {
-                  Get.dialog(
-                    AlertDialog(
-                      title: const Text('Coming Soon'),
-                      content: const Text('This feature is under development.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
+                  Get.toNamed(Routes.NOMINAL);
+                  // Get.dialog(
+                  //   AlertDialog(
+                  //     title: const Text('Coming Soon'),
+                  //     content: const Text('This feature is under development.'),
+                  //     actions: [
+                  //       TextButton(
+                  //         onPressed: () => Get.back(),
+                  //         child: const Text('OK'),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // );
                 },
                 child: Icon(
                   Icons.add,

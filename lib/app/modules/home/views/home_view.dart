@@ -50,23 +50,6 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: const [
-                  Text(
-                    "Hari ini",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                  ),
-                  Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
             const Icon(Icons.notifications_none, color: Colors.white),
           ],
         ),
