@@ -67,7 +67,7 @@ class LoginController extends GetxController {
     if (validateForm()) {
       try {
         isLoading.value = true;
-        Uri urlLogin = Uri.parse('${url}/auth/login-walsan');
+        Uri urlLogin = Uri.parse('${url}/auth/login-walsan/');
         var body = jsonEncode({
           'username': username.value,
           'password': password.value,
@@ -104,11 +104,17 @@ class LoginController extends GetxController {
           box.write('name', data['name']?.toString() ?? '');
           box.write('username', data['username']?.toString() ?? '');
 
+          // if (data['parent']?['santri'] != null &&
+          //     (data['parent']['santri'] as List).isNotEmpty) {
+          //   final santriId =
+          //       data['parent']['santri'][0]['id']?.toString() ?? '';
+          //   box.write('santriId', santriId);
+          // }
+
           if (data['parent']?['santri'] != null &&
               (data['parent']['santri'] as List).isNotEmpty) {
-            final santriId =
-                data['parent']['santri'][0]['id']?.toString() ?? '';
-            box.write('santriId', santriId);
+            final santriId = data['parent']['santri'][0]['id'] ?? 0;
+            box.write('santriId', santriId); // simpan sebagai int
           }
 
           // print('santriId: ${box.read('santriId')}');

@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/detail_berita/bindings/detail_berita_binding.dart';
+import '../modules/detail_berita/views/detail_berita_view.dart';
 import '../modules/detail_notifikasi/bindings/detail_notifikasi_binding.dart';
 import '../modules/detail_notifikasi/views/detail_notifikasi_view.dart';
 import '../modules/detail_riwayat/bindings/detail_riwayat_binding.dart';
@@ -126,6 +128,11 @@ class AppPages {
       name: _Paths.MIDTRANS_PAYMENT,
       page: () => const MidtransPaymentView(),
       binding: MidtransPaymentBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_BERITA,
+      page: () => const DetailBeritaView(),
+      binding: DetailBeritaBinding(),
     ),
   ];
 }
