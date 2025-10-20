@@ -1,4 +1,3 @@
-
 part of 'app_pages.dart';
 // DO NOT EDIT. This is code generated via package:get_cli/get_cli.dart
 
@@ -22,6 +21,7 @@ abstract class Routes {
   static const NOMINAL = _Paths.NOMINAL;
   static const MIDTRANS_PAYMENT = _Paths.MIDTRANS_PAYMENT;
   static const DETAIL_BERITA = _Paths.DETAIL_BERITA;
+  static const METHOD_PEMBAYARAN = _Paths.METHOD_PEMBAYARAN;
 }
 
 abstract class _Paths {
@@ -44,4 +44,5 @@ abstract class _Paths {
   static const NOMINAL = '/nominal';
   static const MIDTRANS_PAYMENT = '/midtrans-payment';
   static const DETAIL_BERITA = '/detail-berita';
+  static const METHOD_PEMBAYARAN = '/method-pembayaran';
 }
