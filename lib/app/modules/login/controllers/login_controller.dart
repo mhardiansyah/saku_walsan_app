@@ -12,11 +12,11 @@ import 'package:http/http.dart' as http;
 
 class LoginController extends GetxController {
   // Reactive variables for email and password
-  var email = ''.obs;
+  var username = ''.obs;
   var password = ''.obs;
 
   // Reactive variables for error messages
-  var emailError = RxnString();
+  var usernameError = RxnString();
   var passwordError = RxnString();
 
   // Reactive variable for loading state
@@ -35,14 +35,14 @@ class LoginController extends GetxController {
     bool isValid = true;
 
     // Reset error messages
-    emailError.value = null;
+    usernameError.value = null;
     passwordError.value = null;
 
-    if (email.value.isEmpty) {
-      emailError.value = 'Email tidak boleh kosong';
+    if (username.value.isEmpty) {
+      usernameError.value = 'Email tidak boleh kosong';
       isValid = false;
-    } else if (!GetUtils.isEmail(email.value)) {
-      emailError.value = 'Format email tidak valid';
+    } else if (!GetUtils.isUsername(username.value)) {
+      usernameError.value = 'Format username tidak valid';
       isValid = false;
     }
     if (password.value.isEmpty) {
@@ -57,9 +57,9 @@ class LoginController extends GetxController {
   }
 
   void clearForm() {
-    email.value = '';
+    username.value = '';
     password.value = '';
-    emailError.value = null;
+    usernameError.value = null;
     passwordError.value = null;
   }
 
@@ -67,9 +67,9 @@ class LoginController extends GetxController {
     if (validateForm()) {
       try {
         isLoading.value = true;
-        Uri urlLogin = Uri.parse('${url}/auth/login/');
+        Uri urlLogin = Uri.parse('${url}/auth/login-walsan/');
         var body = jsonEncode({
-          'email': email.value,
+          'username': username.value,
           'password': password.value,
           'role': 'Walisantri',
         });
@@ -102,13 +102,19 @@ class LoginController extends GetxController {
           box.write('access_token', data['access_token']?.toString() ?? '');
           box.write('refresh_token', data['refresh_token']?.toString() ?? '');
           box.write('name', data['name']?.toString() ?? '');
-          box.write('email', data['email']?.toString() ?? '');
+          box.write('username', data['username']?.toString() ?? '');
+
+          // if (data['parent']?['santri'] != null &&
+          //     (data['parent']['santri'] as List).isNotEmpty) {
+          //   final santriId =
+          //       data['parent']['santri'][0]['id']?.toString() ?? '';
+          //   box.write('santriId', santriId);
+          // }
 
           if (data['parent']?['santri'] != null &&
               (data['parent']['santri'] as List).isNotEmpty) {
-            final santriId =
-                data['parent']['santri'][0]['id']?.toString() ?? '';
-            box.write('santriId', santriId);
+            final santriId = data['parent']['santri'][0]['id'] ?? 0;
+            box.write('santriId', santriId); // simpan sebagai int
           }
 
           // print('santriId: ${box.read('santriId')}');

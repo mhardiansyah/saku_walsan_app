@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -72,7 +73,7 @@ class HomeView extends GetView<HomeController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Transaksi anak Hari ini:",
+                    "Saldo anak Hari ini:",
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
@@ -80,8 +81,8 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "RP. 10.000.000",
+                  Text(
+                    formatRupiah(controller.saldo.value),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 32,
@@ -168,66 +169,78 @@ class HomeView extends GetView<HomeController> {
                       const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final berita = controller.beritaList[index];
-                    return Container(
-                      width: 220,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(16),
+                    print(
+                      "➡️ Berita dikirim ke Detail: ${berita.title.rendered}",
+                    );
+                    return GestureDetector(
+                      onTap: () {
+                        final berita = controller.beritaList[index];
+                        Get.toNamed(Routes.DETAIL_BERITA, arguments: berita);
+                      },
+                      child: Container(
+                        width: 220,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
                             ),
-                            child: Image.network(
-                              berita.yoastHeadJson.ogImage.first.url,
-                              height: 100,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, stack) => Container(
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                              child: Image.network(
+                                berita.yoastHeadJson.ogImage.first.url,
                                 height: 100,
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.broken_image, size: 40),
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (ctx, err, stack) => Container(
+                                  height: 100,
+                                  color: Colors.grey[300],
+                                  child: const Icon(
+                                    Icons.broken_image,
+                                    size: 40,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  berita.title.rendered,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    berita.title.rendered,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  DateFormat(
-                                    "dd MMMM yyyy",
-                                  ).format(berita.date),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    DateFormat(
+                                      "dd MMMM yyyy",
+                                    ).format(berita.date),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -347,5 +360,14 @@ class HomeView extends GetView<HomeController> {
       Colors.indigo,
     ];
     return colors[seed % colors.length];
+  }
+
+  String formatRupiah(int amount) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(amount);
   }
 }

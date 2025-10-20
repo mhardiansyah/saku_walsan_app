@@ -21,6 +21,7 @@ abstract class Routes {
   static const RIWAYAT_HUTANG = _Paths.RIWAYAT_HUTANG;
   static const NOMINAL = _Paths.NOMINAL;
   static const MIDTRANS_PAYMENT = _Paths.MIDTRANS_PAYMENT;
+  static const DETAIL_BERITA = _Paths.DETAIL_BERITA;
 }
 
 abstract class _Paths {
@@ -42,4 +43,5 @@ abstract class _Paths {
   static const RIWAYAT_HUTANG = '/riwayat-hutang';
   static const NOMINAL = '/nominal';
   static const MIDTRANS_PAYMENT = '/midtrans-payment';
+  static const DETAIL_BERITA = '/detail-berita';
 }

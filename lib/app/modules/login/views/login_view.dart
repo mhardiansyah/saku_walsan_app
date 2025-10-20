@@ -46,7 +46,7 @@ class LoginView extends GetView<LoginController> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Email",
+                      "Username",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -58,11 +58,11 @@ class LoginView extends GetView<LoginController> {
                   // Email Field
                   Obx(
                     () => TextField(
-                      onChanged: (value) => controller.email.value = value,
+                      onChanged: (value) => controller.username.value = value,
                       decoration: InputDecoration(
-                        hintText: "Masukan Email Anda",
+                        hintText: "Masukan Username Anda",
                         hintStyle: TextStyle(color: Colors.grey[500]),
-                        errorText: controller.emailError.value,
+                        errorText: controller.usernameError.value,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
