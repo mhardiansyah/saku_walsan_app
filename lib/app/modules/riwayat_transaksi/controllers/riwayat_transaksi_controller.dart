@@ -19,7 +19,8 @@ class RiwayatTransaksiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final santriId = box.read('santri_id');
+    final santriId = box.read('santriId');
+    print("⚙️ santri_id dari storage: $santriId");
     if (santriId != null) {
       fetchRiwayatTransaksi(santriId);
     } else {
