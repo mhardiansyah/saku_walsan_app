@@ -1,27 +1,18 @@
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:saku_walsan_app/app/core/models/berita_models.dart';
 
 class DetailBeritaController extends GetxController {
-  late BeritaRespose berita;
-  //TODO: Implement DetailBeritaController
+  BeritaRespose? berita;
 
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
-    berita = Get.arguments as BeritaRespose;
-    print("berita: $berita");
+    if (Get.arguments != null && Get.arguments is BeritaRespose) {
+      berita = Get.arguments as BeritaRespose;
+      print(" Data berita diterima: ${berita?.title.rendered}");
+    } else {
+      print("Tidak ada data berita yang dikirim");
+    }
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

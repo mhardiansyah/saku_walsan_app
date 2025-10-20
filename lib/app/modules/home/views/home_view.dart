@@ -186,8 +186,12 @@ class HomeView extends GetView<HomeController> {
                       const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final berita = controller.beritaList[index];
+                    print(
+                      "➡️ Berita dikirim ke Detail: ${berita.title.rendered}",
+                    );
                     return GestureDetector(
                       onTap: () {
+                        final berita = controller.beritaList[index];
                         Get.toNamed(Routes.DETAIL_BERITA, arguments: berita);
                       },
                       child: Container(
