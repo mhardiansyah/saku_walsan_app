@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:saku_walsan_app/app/core/models/items_models.dart';
 
-
 HistoryResponse historyResponseFromJson(String str) =>
     HistoryResponse.fromJson(json.decode(str));
 
