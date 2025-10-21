@@ -89,36 +89,16 @@ class LoginController extends GetxController {
         final data = json.decode(response.body);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // box.write('access_token', data['access_token']);
-          // box.write('name', data['name'] ?? '');
-          // box.write('email', data['email'] ?? '');
-          // if (data['parent'] != null &&
-          //     data['parent']['santri'] != null &&
-          //     data['parent']['santri'].isNotEmpty) {
-          //   final santriId = data['parent']['santri'][0]['id'];
-          //   box.write('santriId', santriId);
-          //   print('Santri ID: $santriId');
-          // }
           box.write('access_token', data['access_token']?.toString() ?? '');
           box.write('refresh_token', data['refresh_token']?.toString() ?? '');
           box.write('name', data['name']?.toString() ?? '');
           box.write('username', data['username']?.toString() ?? '');
 
-          // if (data['parent']?['santri'] != null &&
-          //     (data['parent']['santri'] as List).isNotEmpty) {
-          //   final santriId =
-          //       data['parent']['santri'][0]['id']?.toString() ?? '';
-          //   box.write('santriId', santriId);
-          // }
-
           if (data['parent']?['santri'] != null &&
               (data['parent']['santri'] as List).isNotEmpty) {
             final santriId = data['parent']['santri'][0]['id'] ?? 0;
-            box.write('santriId', santriId); // simpan sebagai int
+            box.write('santriId', santriId); 
           }
-
-          // print('santriId: ${box.read('santriId')}');
-          // print('access_token: ${box.read('access_token')}');
 
           print("Decoded data: $data");
           print("access_token: ${data['access_token']}");

@@ -6,6 +6,8 @@ import '../modules/detail_notifikasi/bindings/detail_notifikasi_binding.dart';
 import '../modules/detail_notifikasi/views/detail_notifikasi_view.dart';
 import '../modules/detail_riwayat/bindings/detail_riwayat_binding.dart';
 import '../modules/detail_riwayat/views/detail_riwayat_view.dart';
+import '../modules/detail_riwayat_transaksi/bindings/detail_riwayat_transaksi_binding.dart';
+import '../modules/detail_riwayat_transaksi/views/detail_riwayat_transaksi_view.dart';
 import '../modules/forgotpassword/bindings/forgotpassword_binding.dart';
 import '../modules/forgotpassword/views/forgotpassword_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -133,6 +135,11 @@ class AppPages {
       name: _Paths.DETAIL_BERITA,
       page: () => const DetailBeritaView(),
       binding: DetailBeritaBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_RIWAYAT_TRANSAKSI,
+      page: () => const DetailRiwayatTransaksiView(),
+      binding: DetailRiwayatTransaksiBinding(),
     ),
   ];
 }
