@@ -8,13 +8,15 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:saku_walsan_app/app/core/models/history_detail_models.dart';
 import 'package:saku_walsan_app/app/core/models/items_models.dart';
+import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 
 class DetailRiwayatTransaksiController extends GetxController {
   var url = dotenv.env['base_url'];
   var isLoading = false.obs;
 
   var historyDetail = Rxn<DataHistory>();
-  var allItems = <Items>[]; // simpan semua produk
+  final riwayatController = Get.find<RiwayatTransaksiController>();
+  // var allItems = <Items>[];
   var transaksiId = 0;
 
   @override
@@ -22,7 +24,7 @@ class DetailRiwayatTransaksiController extends GetxController {
     super.onInit();
     transaksiId = Get.arguments as int;
     fetchDetailRiwayat();
-    fetchProduct();
+    // fetchProduct();
   }
 
   Future<void> fetchDetailRiwayat() async {
@@ -42,26 +44,10 @@ class DetailRiwayatTransaksiController extends GetxController {
     }
   }
 
-  Future<void> fetchProduct() async {
-    try {
-      final urlItems = Uri.parse("$url/items");
-      final response = await http.get(urlItems);
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonresponse = json.decode(response.body);
-        final List<dynamic> data = jsonresponse['data'];
-        print("Products data: $data");
-        allItems = data.map((item) => Items.fromJson(item)).toList();
-      } else {
-        Get.snackbar('Error', 'Gagal ambil data produk');
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed fetch: $e', backgroundColor: Colors.red);
-    }
-  }
-
-  /// helper buat cari nama produk dari itemId
   String getProductName(int itemId) {
-    final product = allItems.firstWhereOrNull((p) => p.id == itemId);
+    final product = riwayatController.allItems.firstWhereOrNull(
+      (p) => p.id == itemId,
+    );
     return product?.nama ?? "Produk #$itemId";
   }
 }

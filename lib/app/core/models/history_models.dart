@@ -64,10 +64,11 @@ class HistoryDetail {
           [],
       createdAt:
           DateTime.tryParse(json['createdAt'] ?? '') ??
-          DateTime.now(), // ganti created_at -> createdAt
+          DateTime.now(), 
     );
   }
-  
+
+
 }
 
 class DataItems {

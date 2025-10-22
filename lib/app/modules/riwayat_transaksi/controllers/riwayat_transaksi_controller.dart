@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -5,10 +8,12 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/core/models/history_models.dart';
+import 'package:saku_walsan_app/app/core/models/items_models.dart';
 
 class RiwayatTransaksiController extends GetxController {
   var url = dotenv.env['base_url'];
   var allHistoryList = <HistoryDetail>[].obs;
+  var allItems = <Items>[];
   var isLoading = false.obs;
 
   // Filter aktif (dipakai buat filteredTransaksi)
@@ -24,9 +29,27 @@ class RiwayatTransaksiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchProduct();
     final santriId = box.read('santriId') as int?;
     if (santriId != null) {
       fetchRiwayatTransaksi(santriId);
+    }
+  }
+
+  Future<void> fetchProduct() async {
+    try {
+      final urlItems = Uri.parse("$url/items");
+      final response = await http.get(urlItems);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonresponse = json.decode(response.body);
+        final List<dynamic> data = jsonresponse['data'];
+        print("Products data: $data");
+        allItems = data.map((item) => Items.fromJson(item)).toList();
+      } else {
+        Get.snackbar('Error', 'Gagal ambil data produk');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed fetch: $e', backgroundColor: Colors.red);
     }
   }
 

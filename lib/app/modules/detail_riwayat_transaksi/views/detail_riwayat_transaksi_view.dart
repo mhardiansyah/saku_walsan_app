@@ -105,13 +105,19 @@ class DetailRiwayatTransaksiView
                 const SizedBox(height: 6),
 
                 // List Items
+                // List Items
                 ...data.items.map(
                   (item) => Padding(
                     padding: const EdgeInsets.only(left: 12, bottom: 4),
                     child: Row(
                       children: [
                         const Text("• "),
-                        Expanded(child: Text(item.item?.nama ?? "-")),
+                        Expanded(
+                          child: Text(
+                            "${controller.getProductName(item.itemId)} x${item.quantity}",
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -129,15 +135,33 @@ class DetailRiwayatTransaksiView
 
   Widget _buildRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(flex: 3, child: Text(label)),
           Expanded(
             flex: 5,
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 15, color: Colors.black87),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ),
         ],
