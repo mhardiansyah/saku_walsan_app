@@ -22,6 +22,8 @@ import '../modules/midtrans_payment/bindings/midtrans_payment_binding.dart';
 import '../modules/midtrans_payment/views/midtrans_payment_view.dart';
 import '../modules/nominal/bindings/nominal_binding.dart';
 import '../modules/nominal/views/nominal_view.dart';
+import '../modules/notif_payment/bindings/notif_payment_binding.dart';
+import '../modules/notif_payment/views/notif_payment_view.dart';
 import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
 import '../modules/otp/bindings/otp_binding.dart';
@@ -38,12 +40,14 @@ import '../modules/riwayat_transaksi/bindings/riwayat_transaksi_binding.dart';
 import '../modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
+import '../modules/topup_success/bindings/topup_success_binding.dart';
+import '../modules/topup_success/views/topup_success_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
-  static const INITIAL = Routes.MAIN_NAVIGATION;
+  static const INITIAL = Routes.NOTIF_PAYMENT;
 
   static final routes = [
     GetPage(
@@ -140,6 +144,16 @@ class AppPages {
       name: _Paths.METHOD_PEMBAYARAN,
       page: () => MethodPembayaranView(),
       binding: MethodPembayaranBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIF_PAYMENT,
+      page: () => const NotifPaymentView(),
+      binding: NotifPaymentBinding(),
+    ),
+    GetPage(
+      name: _Paths.TOPUP_SUCCESS,
+      page: () => const TopupSuccessView(),
+      binding: TopupSuccessBinding(),
     ),
   ];
 }

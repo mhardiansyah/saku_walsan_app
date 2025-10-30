@@ -1,23 +1,13 @@
 import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
-  //TODO: Implement ProfileController
+  var name = 'Faqih Abqory'.obs;
+  var email = 'SitiM@gmail.com'.obs;
+  var password = '********'.obs;
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
+  void logout() {
+    // Aksi logout di sini
+    Get.snackbar('Logout', 'Anda telah logout',
+        snackPosition: SnackPosition.BOTTOM);
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

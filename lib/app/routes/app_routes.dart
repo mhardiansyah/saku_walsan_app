@@ -22,6 +22,8 @@ abstract class Routes {
   static const MIDTRANS_PAYMENT = _Paths.MIDTRANS_PAYMENT;
   static const DETAIL_BERITA = _Paths.DETAIL_BERITA;
   static const METHOD_PEMBAYARAN = _Paths.METHOD_PEMBAYARAN;
+  static const NOTIF_PAYMENT = _Paths.NOTIF_PAYMENT;
+  static const TOPUP_SUCCESS = _Paths.TOPUP_SUCCESS;
 }
 
 abstract class _Paths {
@@ -45,4 +47,6 @@ abstract class _Paths {
   static const MIDTRANS_PAYMENT = '/midtrans-payment';
   static const DETAIL_BERITA = '/detail-berita';
   static const METHOD_PEMBAYARAN = '/method-pembayaran';
+  static const NOTIF_PAYMENT = '/notif-payment';
+  static const TOPUP_SUCCESS = '/topup-success';
 }

@@ -8,5 +8,6 @@
         "tipe",
         "Transaksi",
         "transaksilist"
-    ]
+    ],
+    "cmake.sourceDirectory": "C:/flutter_project/saku_walsan_app/linux"
 }
