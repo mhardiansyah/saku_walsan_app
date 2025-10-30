@@ -15,6 +15,9 @@ class HomeController extends GetxController {
   var totalHutang = 50000.obs;
   var isloading = false.obs;
   var beritaList = <BeritaRespose>[].obs;
+  var totalTransaksi = 0.obs;
+  var totalHutangBulainIni = 0.obs;
+  var totalHutangBulainLalu = 0.obs;
 
   var url = dotenv.env['base_url'];
 

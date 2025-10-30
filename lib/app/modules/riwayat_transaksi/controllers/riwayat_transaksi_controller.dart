@@ -65,10 +65,54 @@ class RiwayatTransaksiController extends GetxController {
         Get.snackbar('Error', 'Failed to fetch transaction history');
       }
     } catch (e) {
-      print("❌ Error fetching transaction history: $e");
+      print("Error fetching transaction history: $e");
     } finally {
       isLoading.value = false;
     }
+  }
+
+  int get totalTransaksiBulanIni {
+    final now = DateTime.now();
+    return allHistoryList
+        .where(
+          (t) => t.createdAt.month == now.month && t.createdAt.year == now.year,
+        )
+        .length;
+  }
+
+  int get totalHutangBulanIni {
+    final now = DateTime.now();
+    final kasbonBulanIni = allHistoryList
+        .where(
+          (t) =>
+              t.createdAt.month == now.month &&
+              t.createdAt.year == now.year &&
+              t.status.toLowerCase() == 'Hutang',
+        )
+        .fold<int>(0, (sum, t) => sum + t.totalAmount);
+    return kasbonBulanIni;
+  }
+
+  int get totalHutangBulanLalu {
+    final now = DateTime.now();
+    final lastMonth = DateTime(now.year, now.month - 1);
+    final kasbonBulanLalu = allHistoryList
+        .where(
+          (t) =>
+              t.createdAt.month == lastMonth.month &&
+              t.createdAt.year == lastMonth.year &&
+              t.status.toLowerCase() == 'Hutang',
+        )
+        .fold<int>(0, (sum, t) => sum + t.totalAmount);
+    return kasbonBulanLalu;
+  }
+
+  double get persentaseKasbon {
+    final bulanLalu = totalHutangBulanLalu;
+    final bulanIni = totalHutangBulanIni;
+    if (bulanLalu == 0 && bulanIni == 0) return 0;
+    if (bulanLalu == 0) return 100;
+    return ((bulanIni - bulanLalu) / bulanLalu) * 100;
   }
 
   List<HistoryDetail> get filteredTransaksi {

@@ -159,7 +159,7 @@ class DetailRiwayatTransaksiView
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Color.fromARGB(255, 183, 101, 101),
                 ),
               ),
             ),
@@ -168,6 +168,8 @@ class DetailRiwayatTransaksiView
       ),
     );
   }
+  
+  
 
   String formatRupiah(int amount) {
     final formatCurrency = NumberFormat.currency(

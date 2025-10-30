@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 
@@ -12,6 +13,7 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final box = GetStorage();
     final userName = box.read('name') ?? 'User';
+    final riwayatController = Get.put(RiwayatTransaksiController());
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
@@ -51,23 +53,6 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: const [
-                  Text(
-                    "Hari ini",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                  ),
-                  Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
             const Icon(Icons.notifications_none, color: Colors.white),
           ],
         ),
@@ -100,7 +85,7 @@ class HomeView extends GetView<HomeController> {
                   const SizedBox(height: 8),
                   Text(
                     formatRupiah(controller.saldo.value),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -130,30 +115,44 @@ class HomeView extends GetView<HomeController> {
 
             const SizedBox(height: 20),
 
-            /// --- SUMMARY CARDS ---
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-              children: [
-                _buildSummaryCard(
-                  "Total Transaksi",
-                  "20",
-                  Colors.green,
-                  "assets/icons/dolars.png",
-                  "+10",
-                ),
-                _buildSummaryCard(
-                  "Total Kasbon",
-                  "300K",
-                  Colors.red,
-                  "assets/icons/kasbon.png",
-                  "+10",
-                ),
-              ],
+            /// --- SUMMARY CARDS (FIXED GRID OVERFLOW) ---
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final double itemWidth = (constraints.maxWidth - 12) / 2;
+                final double itemHeight = 150;
+                final double persenKasbon = riwayatController.persentaseKasbon;
+
+                final String badgeKasbon = (persenKasbon >= 0
+                    ? "+${persenKasbon.toStringAsFixed(1)}%"
+                    : "${persenKasbon.toStringAsFixed(1)}%");
+
+                return GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: itemWidth / itemHeight,
+                  children: [
+                    _buildSummaryCard(
+                      "Total Transaksi",
+                      riwayatController.isLoading.value
+                          ? "..."
+                          : riwayatController.totalTransaksiBulanIni.toString(),
+                      Colors.green,
+                      "assets/icons/dolars.png",
+                      "+10",
+                    ),
+                    _buildSummaryCard(
+                      "Total Kasbon",
+                      formatRupiah(controller.totalHutang.value),
+                      Color(0XFFFF001E),
+                      "assets/icons/kasbon.png",
+                      badgeKasbon,
+                    ),
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 20),
@@ -186,9 +185,6 @@ class HomeView extends GetView<HomeController> {
                       const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final berita = controller.beritaList[index];
-                    print(
-                      "➡️ Berita dikirim ke Detail: ${berita.title.rendered}",
-                    );
                     return GestureDetector(
                       onTap: () {
                         final berita = controller.beritaList[index];
@@ -306,29 +302,39 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
