@@ -7,108 +7,156 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(ProfileController());
+
     return Scaffold(
-      backgroundColor: Color(0xFFF5F6FA),
-      body: SingleChildScrollView(
+      backgroundColor: Colors.white,
+      body: SafeArea(
         child: Column(
           children: [
-            // Bagian header profil
+            // ===== HEADER =====
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1B8A4E), Colors.greenAccent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              decoration: const BoxDecoration(
+                color: Color(0xFF2EAF66),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(60),
+                  bottomRight: Radius.circular(60),
                 ),
               ),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Avatar bulat oranye
                   const CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(
-                      "https://i.pravatar.cc/300", // contoh foto profil random
-                    ),
+                    radius: 45,
+                    backgroundColor: Color(0xFFFFB800),
+                    child: Icon(Icons.person, color: Colors.white, size: 50),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 15),
+
+                  // Nama pengguna
+                  const Text(
                     "Rahsya Aditiya",
                     style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
-                  Text(
-                    "rahsya@email.com",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.9),
+                  const SizedBox(height: 3),
+
+                  // Email pengguna
+                  const Text(
+                    "Rahsyaa@gmail.com",
+                    style: TextStyle(fontSize: 13, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            // ===== FORM PROFIL =====
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nama
+                  const Text(
+                    "Nama:",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Obx(
+                    () => _buildField(
+                      controller.name.value,
+                      isBold: true,
+                      backgroundColor: const Color(0xFFF3F1F1),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
+
+                  const SizedBox(height: 18),
+
+                  // Email
+                  const Text(
+                    "Email:",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Obx(
+                    () => _buildField(
+                      controller.email.value,
+                      backgroundColor: const Color(0xFFF9F9F9),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        ProfileStat(label: "Saldo", value: "Rp 500.000"),
-                        ProfileStat(label: "Total Jajan", value: "Rp 200.000"),
-                        ProfileStat(label: "Hutang", value: "Rp 50.000"),
-                      ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // Password
+                  const Text(
+                    "Password",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Obx(
+                    () => Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9F9F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 14,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            controller.password.value,
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          const Icon(
+                            Icons.visibility_off_outlined,
+                            color: Colors.grey,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            const Spacer(),
 
-            // Menu pengaturan akun
+            // ===== TOMBOL LOGOUT =====
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  ProfileMenuItem(
-                    icon: Icons.edit,
-                    title: "Edit Profil",
-                    onTap: () {},
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: controller.logout,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF8A8A),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
                   ),
-                  ProfileMenuItem(
-                    icon: Icons.history,
-                    title: "Riwayat Transaksi",
-                    onTap: () {
-                      Get.toNamed('/riwayat');
-                    },
+                  child: const Text(
+                    "Logout",
+                    style: TextStyle(
+                      color: Color(0xFFED1C24),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
-                  ProfileMenuItem(
-                    icon: Icons.settings,
-                    title: "Pengaturan",
-                    onTap: () {},
-                  ),
-                  ProfileMenuItem(
-                    icon: Icons.logout,
-                    title: "Logout",
-                    onTap: () {},
-                    isLogout: true,
-                  ),
-                ],
+                ),
               ),
             ),
           ],
@@ -116,64 +164,27 @@ class ProfileView extends GetView<ProfileController> {
       ),
     );
   }
-}
 
-class ProfileStat extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const ProfileStat({
-    super.key,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            )),
-        const SizedBox(height: 5),
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-      ],
-    );
-  }
-}
-
-class ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-  final bool isLogout;
-
-  const ProfileMenuItem({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    this.isLogout = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: ListTile(
-        leading: Icon(icon, color: isLogout ? Colors.red : Colors.blue),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: isLogout ? Colors.red : Colors.black,
-          ),
+  // Widget field untuk nama & email
+  Widget _buildField(
+    String value, {
+    bool isBold = false,
+    Color backgroundColor = Colors.white,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+      ),
+      child: Text(
+        value,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
       ),
     );
   }
