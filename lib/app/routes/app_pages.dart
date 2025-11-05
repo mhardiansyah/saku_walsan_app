@@ -40,6 +40,8 @@ import '../modules/riwayat_transaksi/bindings/riwayat_transaksi_binding.dart';
 import '../modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
+import '../modules/spp/bindings/spp_binding.dart';
+import '../modules/spp/views/spp_view.dart';
 import '../modules/topup_success/bindings/topup_success_binding.dart';
 import '../modules/topup_success/views/topup_success_view.dart';
 
@@ -47,7 +49,7 @@ part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
-  static const INITIAL = Routes.NOTIF_PAYMENT;
+  static const INITIAL = Routes.SPP;
 
   static final routes = [
     GetPage(
@@ -154,6 +156,11 @@ class AppPages {
       name: _Paths.TOPUP_SUCCESS,
       page: () => const TopupSuccessView(),
       binding: TopupSuccessBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPP,
+      page: () => const SppView(),
+      binding: SppBinding(),
     ),
   ];
 }
