@@ -91,24 +91,7 @@ class HomeView extends GetView<HomeController> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      onPressed: () {},
-                      icon: const Icon(Icons.list, color: Colors.white),
-                      label: const Text(
-                        "Lihat Detail",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -120,11 +103,11 @@ class HomeView extends GetView<HomeController> {
               builder: (context, constraints) {
                 final double itemWidth = (constraints.maxWidth - 12) / 2;
                 final double itemHeight = 150;
-                final double persenKasbon = riwayatController.persentaseKasbon;
+                // final double persenKasbon = riwayatController.persentaseKasbon;
 
-                final String badgeKasbon = (persenKasbon >= 0
-                    ? "+${persenKasbon.toStringAsFixed(1)}%"
-                    : "${persenKasbon.toStringAsFixed(1)}%");
+                // final String badgeKasbon = (persenKasbon >= 0
+                //     ? "+${persenKasbon.toStringAsFixed(1)}%"
+                //     : "${persenKasbon.toStringAsFixed(1)}%");
 
                 return GridView.count(
                   crossAxisCount: 2,
@@ -137,18 +120,20 @@ class HomeView extends GetView<HomeController> {
                     _buildSummaryCard(
                       "Total Transaksi",
                       riwayatController.isLoading.value
-                          ? "..."
+                          ? "0"
                           : riwayatController.totalTransaksiBulanIni.toString(),
                       Colors.green,
                       "assets/icons/dolars.png",
-                      "+10",
+                      "",
+                      showBadge: false,
                     ),
                     _buildSummaryCard(
                       "Total Kasbon",
                       formatRupiah(controller.totalHutang.value),
                       Color(0XFFFF001E),
                       "assets/icons/kasbon.png",
-                      badgeKasbon,
+                      "",
+                      showBadge: false,
                     ),
                   ],
                 );
@@ -176,88 +161,115 @@ class HomeView extends GetView<HomeController> {
                 return const Text("Belum ada berita.");
               }
 
-              return SizedBox(
-                height: 180,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: controller.beritaList.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final berita = controller.beritaList[index];
-                    return GestureDetector(
-                      onTap: () {
-                        final berita = controller.beritaList[index];
-                        Get.toNamed(Routes.DETAIL_BERITA, arguments: berita);
-                      },
-                      child: Container(
-                        width: 220,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+              final displayedList = controller.showAllBerita.value
+                  ? controller.beritaList
+                  : controller.beritaList.take(4).toList();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.9,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
+                    itemCount: displayedList.length,
+                    itemBuilder: (context, index) {
+                      final berita = displayedList[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Get.toNamed(Routes.DETAIL_BERITA, arguments: berita);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
                               ),
-                              child: Image.network(
-                                berita.yoastHeadJson.ogImage.first.url,
-                                height: 100,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (ctx, err, stack) => Container(
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                                child: Image.network(
+                                  berita.yoastHeadJson.ogImage.first.url,
                                   height: 100,
-                                  color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.broken_image,
-                                    size: 40,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (ctx, err, stack) => Container(
+                                    height: 100,
+                                    color: Colors.grey[300],
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      size: 40,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    berita.title.rendered,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      berita.title.rendered,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    DateFormat(
-                                      "dd MMMM yyyy",
-                                    ).format(berita.date),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      DateFormat(
+                                        "dd MMMM yyyy",
+                                      ).format(berita.date),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  if (controller.beritaList.length > 4)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => controller.showAllBerita.toggle(),
+                        child: Text(
+                          controller.showAllBerita.value
+                              ? "See Less"
+                              : "See All",
+                          style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                ],
               );
             }),
           ],
@@ -271,8 +283,9 @@ class HomeView extends GetView<HomeController> {
     String value,
     Color color,
     String imagePath,
-    String badge,
-  ) {
+    String badge, {
+    bool showBadge = true, // 🔥 opsional
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: color,
@@ -335,24 +348,27 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    badge,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+
+                // 🔥 Badge muncul hanya jika showBadge == true
+                if (showBadge)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      badge,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ],

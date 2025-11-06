@@ -22,6 +22,7 @@ abstract class Routes {
   static const MIDTRANS_PAYMENT = _Paths.MIDTRANS_PAYMENT;
   static const DETAIL_BERITA = _Paths.DETAIL_BERITA;
   static const DETAIL_RIWAYAT_TRANSAKSI = _Paths.DETAIL_RIWAYAT_TRANSAKSI;
+  static const SPP = _Paths.SPP;
 }
 
 abstract class _Paths {
@@ -45,4 +46,5 @@ abstract class _Paths {
   static const MIDTRANS_PAYMENT = '/midtrans-payment';
   static const DETAIL_BERITA = '/detail-berita';
   static const DETAIL_RIWAYAT_TRANSAKSI = '/detail-riwayat-transaksi';
+  static const SPP = '/spp';
 }

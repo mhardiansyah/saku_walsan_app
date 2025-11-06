@@ -38,6 +38,8 @@ import '../modules/riwayat_transaksi/bindings/riwayat_transaksi_binding.dart';
 import '../modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
+import '../modules/spp/bindings/spp_binding.dart';
+import '../modules/spp/views/spp_view.dart';
 
 part 'app_routes.dart';
 
@@ -140,6 +142,11 @@ class AppPages {
       name: _Paths.DETAIL_RIWAYAT_TRANSAKSI,
       page: () => const DetailRiwayatTransaksiView(),
       binding: DetailRiwayatTransaksiBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPP,
+      page: () => const SppView(),
+      binding: SppBinding(),
     ),
   ];
 }

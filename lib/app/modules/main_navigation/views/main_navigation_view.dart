@@ -9,6 +9,7 @@ import 'package:saku_walsan_app/app/modules/profile/views/profile_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/views/riwayat_transaksi_view.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_hutang/views/riwayat_hutang_view.dart';
+import 'package:saku_walsan_app/app/modules/spp/views/spp_view.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class MainNavigationView extends GetView<MainNavigationController> {
@@ -19,7 +20,7 @@ class MainNavigationView extends GetView<MainNavigationController> {
     HomeView(),
     RiwayatTransaksiView(),
     SizedBox(), // Placeholder for Top up
-    RiwayatHutangView(),
+    SppView(),
     ProfileView(),
   ];
 
@@ -66,7 +67,7 @@ class MainNavigationView extends GetView<MainNavigationController> {
             bottomNavigationBar: BottomAppBar(
               shape: const CircularNotchedRectangle(),
               notchMargin: 8,
-              color: const Color(0xFF1B8A4E), // Warna ungu utama sesuai desain
+              color: const Color(0xFF1B8A4E),
               child: Container(
                 height: isLandscape ? 60 : 70,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -87,8 +88,8 @@ class MainNavigationView extends GetView<MainNavigationController> {
                     ),
                     const SizedBox(width: 40), // Space for FAB
                     _buildNavItem(
-                      Icons.history_toggle_off,
-                      "Riwayat Hutang",
+                      Icons.school_outlined,
+                      "Spp",
                       3,
                       isLandscape: isLandscape,
                     ),

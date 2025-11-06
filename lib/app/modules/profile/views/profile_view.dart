@@ -14,7 +14,6 @@ class ProfileView extends GetView<ProfileController> {
       body: SafeArea(
         child: Column(
           children: [
-            // ===== HEADER =====
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -46,12 +45,6 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
                   const SizedBox(height: 3),
-
-                  // Email pengguna
-                  const Text(
-                    "Rahsyaa@gmail.com",
-                    style: TextStyle(fontSize: 13, color: Colors.white),
-                  ),
                 ],
               ),
             ),
@@ -96,6 +89,7 @@ class ProfileView extends GetView<ProfileController> {
                   const SizedBox(height: 18),
 
                   // Password
+                  // Password
                   const Text(
                     "Password",
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -115,13 +109,23 @@ class ProfileView extends GetView<ProfileController> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // Password text
                           Text(
-                            controller.password.value,
+                            controller.isPasswordHidden.value
+                                ? '********'
+                                : controller.password.value,
                             style: const TextStyle(fontSize: 15),
                           ),
-                          const Icon(
-                            Icons.visibility_off_outlined,
-                            color: Colors.grey,
+
+                          // Visibility icon
+                          GestureDetector(
+                            onTap: controller.togglePasswordVisibility,
+                            child: Icon(
+                              controller.isPasswordHidden.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: Colors.grey,
+                            ),
                           ),
                         ],
                       ),

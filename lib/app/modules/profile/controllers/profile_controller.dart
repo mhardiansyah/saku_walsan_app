@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class ProfileController extends GetxController {
   final box = GetStorage();
@@ -8,6 +9,8 @@ class ProfileController extends GetxController {
   var email = ''.obs;
   var username = ''.obs;
   var password = ''.obs;
+  var isPasswordHidden = true
+      .obs;
 
   @override
   void onInit() {
@@ -19,17 +22,20 @@ class ProfileController extends GetxController {
     name.value = box.read('name') ?? 'Unknown User';
     email.value = box.read('email') ?? 'No Email';
     username.value = box.read('username') ?? 'No Username';
-    password.value = '********';
+    password.value = box.read('password') ?? '********';
+  }
+
+  void togglePasswordVisibility() {
+    isPasswordHidden.value = !isPasswordHidden.value;
   }
 
   void logout() {
-    box.erase(); // hapus semua data login
+    box.erase();
     Get.snackbar(
       'Logout',
       'Anda telah logout',
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
     );
-    // Arahkan ke halaman login
-    // Get.offAllNamed(Routes.LOGIN);
+    Get.offAllNamed(Routes.LOGIN);
   }
 }

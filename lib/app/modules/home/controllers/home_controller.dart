@@ -19,6 +19,8 @@ class HomeController extends GetxController {
   var totalHutangBulainIni = 0.obs;
   var totalHutangBulainLalu = 0.obs;
 
+  var showAllBerita = false.obs;
+
   var url = dotenv.env['base_url'];
 
   @override

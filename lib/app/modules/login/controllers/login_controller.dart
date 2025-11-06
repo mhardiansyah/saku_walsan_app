@@ -93,11 +93,13 @@ class LoginController extends GetxController {
           box.write('refresh_token', data['refresh_token']?.toString() ?? '');
           box.write('name', data['name']?.toString() ?? '');
           box.write('username', data['username']?.toString() ?? '');
+          box.write('email', data['email']?.toString() ?? '');
+          box.write('password', password.value);
 
           if (data['parent']?['santri'] != null &&
               (data['parent']['santri'] as List).isNotEmpty) {
             final santriId = data['parent']['santri'][0]['id'] ?? 0;
-            box.write('santriId', santriId); 
+            box.write('santriId', santriId);
           }
 
           print("Decoded data: $data");
