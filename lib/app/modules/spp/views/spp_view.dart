@@ -33,24 +33,26 @@ class SppView extends GetView<SppController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ===== Statistik SPP =====
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      title: "SPP Sudah terbayarkan",
-                      count: "5",
-                      color: const Color(0xFF22C55E),
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatCard(
+                        title: "SPP Sudah terbayarkan",
+                        count: controller.paidcount.value.toString(),
+                        color: const Color(0xFF22C55E),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildStatCard(
-                      title: "SPP Belum terbayarkan",
-                      count: "2",
-                      color: const Color(0xFFF59E0B),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildStatCard(
+                        title: "SPP Belum terbayarkan",
+                        count: controller.unpaidcount.value.toString(),
+                        color: const Color(0xFFF59E0B),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
 

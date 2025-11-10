@@ -18,6 +18,8 @@ import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
+import '../modules/method_pembayaran/bindings/method_pembayaran_binding.dart';
+import '../modules/method_pembayaran/views/method_pembayaran_view.dart';
 import '../modules/midtrans_payment/bindings/midtrans_payment_binding.dart';
 import '../modules/midtrans_payment/views/midtrans_payment_view.dart';
 import '../modules/nominal/bindings/nominal_binding.dart';
@@ -147,6 +149,11 @@ class AppPages {
       name: _Paths.SPP,
       page: () => const SppView(),
       binding: SppBinding(),
+    ),
+    GetPage(
+      name: _Paths.METHOD_PEMBAYARAN,
+      page: () => const MethodPembayaranView(),
+      binding: MethodPembayaranBinding(),
     ),
   ];
 }

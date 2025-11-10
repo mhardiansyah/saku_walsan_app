@@ -59,8 +59,9 @@ class Santri {
   int id;
   String name;
   String kelas;
-  int? saldo; // ubah ke nullable
-  int? hutang; // ubah ke nullable
+  String nisn;
+  int? saldo;
+  int? hutang;
   String jurusan;
   Parent? parent;
   DateTime createdAt;
@@ -70,6 +71,7 @@ class Santri {
     required this.id,
     required this.name,
     required this.kelas,
+    required this.nisn,
     this.saldo,
     this.hutang,
     required this.jurusan,
@@ -89,6 +91,7 @@ class Santri {
       parent: json['parent'] != null ? Parent.fromJson(json['parent']) : null,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      nisn: json['nisn'] ?? '',
     );
   }
 }

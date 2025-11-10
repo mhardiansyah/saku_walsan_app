@@ -99,7 +99,9 @@ class LoginController extends GetxController {
           if (data['parent']?['santri'] != null &&
               (data['parent']['santri'] as List).isNotEmpty) {
             final santriId = data['parent']['santri'][0]['id'] ?? 0;
+            final nisn = data['parent']['santri'][0]['nisn'] ?? '';
             box.write('santriId', santriId);
+            box.write('nisn', nisn);
           }
 
           print("Decoded data: $data");

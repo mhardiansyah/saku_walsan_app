@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
+import 'package:shimmer/shimmer.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -154,16 +155,79 @@ class HomeView extends GetView<HomeController> {
 
             Obx(() {
               if (controller.isloading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (controller.beritaList.isEmpty) {
-                return const Text("Belum ada berita.");
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.9,
+                  ),
+                  itemCount: 4,
+                  itemBuilder: (context, index) {
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 100,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 14,
+                                    width: double.infinity,
+                                    color: Colors.grey[300],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    height: 14,
+                                    width: 80,
+                                    color: Colors.grey[300],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               }
 
               final displayedList = controller.showAllBerita.value
                   ? controller.beritaList
                   : controller.beritaList.take(4).toList();
+
+              if (controller.beritaList.isEmpty) {
+                return const Text("Belum ada berita.");
+              }
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
