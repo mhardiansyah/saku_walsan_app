@@ -94,12 +94,14 @@ class HomeController extends GetxController {
         urlProfile,
         headers: {'Content-Type': 'application/json'},
       );
+      printInfo(info: "fetch profile santri url: $urlProfile");
       if (res.statusCode == 200) {
         final dataProfile = jsonDecode(res.body);
 
         final summary = SantriSummary.fromJson(dataProfile['data']);
         print("data summary: $dataProfile");
-        
+        print("data summary: $summary");
+
         saldo.value = summary.saldo ?? 0;
         totalHutang.value = summary.hutang ?? 0;
         jumlahTransaksi.value = summary.jumlahTransaksi ?? 0;
