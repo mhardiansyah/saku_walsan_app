@@ -43,7 +43,7 @@ class RiwayatTransaksiController extends GetxController {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonresponse = json.decode(response.body);
         final List<dynamic> data = jsonresponse['data'];
-        print("Products data: $data");
+        // print("Products data: $data");
         allItems = data.map((item) => Items.fromJson(item)).toList();
       } else {
         Get.snackbar('Error', 'Gagal ambil data produk');

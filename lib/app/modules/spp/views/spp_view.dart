@@ -39,7 +39,7 @@ class SppView extends GetView<SppController> {
                     Expanded(
                       child: _buildStatCard(
                         title: "SPP Sudah terbayarkan",
-                        count: controller.paidcount.value.toString(),
+                        count: controller.paidCount.value.toString(),
                         color: const Color(0xFF22C55E),
                       ),
                     ),
@@ -47,7 +47,7 @@ class SppView extends GetView<SppController> {
                     Expanded(
                       child: _buildStatCard(
                         title: "SPP Belum terbayarkan",
-                        count: controller.unpaidcount.value.toString(),
+                        count: controller.unpaidCount.value.toString(),
                         color: const Color(0xFFF59E0B),
                       ),
                     ),
@@ -300,8 +300,8 @@ class SppView extends GetView<SppController> {
                   const SizedBox(height: 10),
                   const Divider(),
                   Obx(
-                    () => Column(
-                      children: controller.months.map((month) {
+                      () => Column(
+                      children: controller.availableSpp.map((month) {
                         final isSelected =
                             controller.selectedMonth.value == month;
                         return RadioListTile<String>(

@@ -120,9 +120,7 @@ class HomeView extends GetView<HomeController> {
                   children: [
                     _buildSummaryCard(
                       "Total Transaksi",
-                      riwayatController.isLoading.value
-                          ? "0"
-                          : riwayatController.totalTransaksiBulanIni.toString(),
+                      formatRupiah(controller.jumlahTransaksi.value),
                       Colors.green,
                       "assets/icons/dolars.png",
                       "",
