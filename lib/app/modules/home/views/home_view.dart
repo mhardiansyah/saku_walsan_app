@@ -59,178 +59,106 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// --- SALDO ---
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1B8A4E),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Saldo anak Hari ini:",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatRupiah(controller.saldo.value),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
+      body: RefreshIndicator(
+        onRefresh: () => controller.rehreshAll(),
 
-            const SizedBox(height: 20),
-
-            /// --- SUMMARY CARDS (FIXED GRID OVERFLOW) ---
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final double itemWidth = (constraints.maxWidth - 12) / 2;
-                final double itemHeight = 150;
-                // final double persenKasbon = riwayatController.persentaseKasbon;
-
-                // final String badgeKasbon = (persenKasbon >= 0
-                //     ? "+${persenKasbon.toStringAsFixed(1)}%"
-                //     : "${persenKasbon.toStringAsFixed(1)}%");
-
-                return GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: itemWidth / itemHeight,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B8A4E),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSummaryCard(
-                      "Total Transaksi",
-                      formatRupiah(controller.jumlahTransaksi.value),
-                      Colors.green,
-                      "assets/icons/dolars.png",
-                      "",
-                      showBadge: false,
+                    const Text(
+                      "Saldo anak Hari ini:",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    _buildSummaryCard(
-                      "Total Kasbon",
-                      formatRupiah(controller.totalHutang.value),
-                      Color(0XFFFF001E),
-                      "assets/icons/kasbon.png",
-                      "",
-                      showBadge: false,
-                    ),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Berita SMK",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Obx(() {
-              if (controller.isloading.value) {
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: 4,
-                  itemBuilder: (context, index) {
-                    return Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        decoration: BoxDecoration(
+                    const SizedBox(height: 8),
+                    Obx(
+                      () => Text(
+                        formatRupiah(controller.saldo.value),
+                        style: const TextStyle(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: 100,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: 14,
-                                    width: double.infinity,
-                                    color: Colors.grey[300],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Container(
-                                    height: 14,
-                                    width: 80,
-                                    color: Colors.grey[300],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    );
-                  },
-                );
-              }
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
 
-              final displayedList = controller.showAllBerita.value
-                  ? controller.beritaList
-                  : controller.beritaList.take(4).toList();
+              const SizedBox(height: 20),
 
-              if (controller.beritaList.isEmpty) {
-                return const Text("Belum ada berita.");
-              }
+              /// --- SUMMARY CARDS (FIXED GRID OVERFLOW) ---
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final double itemWidth = (constraints.maxWidth - 12) / 2;
+                  final double itemHeight = 150;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GridView.builder(
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: itemWidth / itemHeight,
+                    children: [
+                      Obx(
+                        () => _buildSummaryCard(
+                          "Total Transaksi",
+                          controller.jumlahTransaksi.value.toString(),
+                          Colors.green,
+                          "assets/icons/dolars.png",
+                          "",
+                          showBadge: false,
+                        ),
+                      ),
+
+                      Obx(
+                        () => _buildSummaryCard(
+                          "Total Kasbon",
+                          formatRupiah(controller.totalHutang.value),
+                          Color(0XFFFF001E),
+                          "assets/icons/kasbon.png",
+                          "",
+                          showBadge: false,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Berita SMK",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Obx(() {
+                if (controller.isloading.value) {
+                  return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
@@ -240,13 +168,11 @@ class HomeView extends GetView<HomeController> {
                           mainAxisSpacing: 12,
                           childAspectRatio: 0.9,
                         ),
-                    itemCount: displayedList.length,
+                    itemCount: 4,
                     itemBuilder: (context, index) {
-                      final berita = displayedList[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Get.toNamed(Routes.DETAIL_BERITA, arguments: berita);
-                        },
+                      return Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -262,22 +188,13 @@ class HomeView extends GetView<HomeController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                                child: Image.network(
-                                  berita.yoastHeadJson.ogImage.first.url,
-                                  height: 100,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (ctx, err, stack) => Container(
-                                    height: 100,
-                                    color: Colors.grey[300],
-                                    child: const Icon(
-                                      Icons.broken_image,
-                                      size: 40,
-                                    ),
+                              Container(
+                                height: 100,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
                                   ),
                                 ),
                               ),
@@ -286,24 +203,16 @@ class HomeView extends GetView<HomeController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      berita.title.rendered,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
+                                    Container(
+                                      height: 14,
+                                      width: double.infinity,
+                                      color: Colors.grey[300],
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(
-                                      DateFormat(
-                                        "dd MMMM yyyy",
-                                      ).format(berita.date),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
+                                    Container(
+                                      height: 14,
+                                      width: 80,
+                                      color: Colors.grey[300],
                                     ),
                                   ],
                                 ),
@@ -313,28 +222,131 @@ class HomeView extends GetView<HomeController> {
                         ),
                       );
                     },
-                  ),
+                  );
+                }
 
-                  if (controller.beritaList.length > 4)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => controller.showAllBerita.toggle(),
-                        child: Text(
-                          controller.showAllBerita.value
-                              ? "See Less"
-                              : "See All",
-                          style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.w600,
+                final displayedList = controller.showAllBerita.value
+                    ? controller.beritaList
+                    : controller.beritaList.take(4).toList();
+
+                if (controller.beritaList.isEmpty) {
+                  return const Text("Belum ada berita.");
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.9,
+                          ),
+                      itemCount: displayedList.length,
+                      itemBuilder: (context, index) {
+                        final berita = displayedList[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Get.toNamed(
+                              Routes.DETAIL_BERITA,
+                              arguments: berita,
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                  child: Image.network(
+                                    berita.yoastHeadJson.ogImage.first.url,
+                                    height: 100,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, err, stack) =>
+                                        Container(
+                                          height: 100,
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 40,
+                                          ),
+                                        ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        berita.title.rendered,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        DateFormat(
+                                          "dd MMMM yyyy",
+                                        ).format(berita.date),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    if (controller.beritaList.length > 4)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => controller.showAllBerita.toggle(),
+                          child: Text(
+                            controller.showAllBerita.value
+                                ? "See Less"
+                                : "See All",
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            }),
-          ],
+                  ],
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

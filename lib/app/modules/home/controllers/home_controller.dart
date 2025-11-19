@@ -10,10 +10,10 @@ import 'package:saku_walsan_app/app/core/models/santriSummary_models.dart';
 import 'package:saku_walsan_app/app/core/models/santri_models.dart';
 
 class HomeController extends GetxController {
-  var saldo = 150000.obs;
+  var saldo = 0.obs;
   var topupBulanan = 500000.obs;
   var totalJajan = 200000.obs;
-  var totalHutang = 50000.obs;
+  var totalHutang = 0.obs;
   var isloading = false.obs;
   var beritaList = <BeritaRespose>[].obs;
   var totalTransaksi = 0.obs;
@@ -104,7 +104,7 @@ class HomeController extends GetxController {
 
         saldo.value = summary.saldo ?? 0;
         totalHutang.value = summary.hutang ?? 0;
-        jumlahTransaksi.value = summary.jumlahTransaksi ?? 0;
+        jumlahTransaksi.value = summary.totalTransaksi ?? 0;
 
         print("saldo santri: ${saldo.value}");
         print("total hutang santri: ${totalHutang.value}");
@@ -123,5 +123,12 @@ class HomeController extends GetxController {
     } finally {
       isloading.value = false;
     }
+  }
+
+  Future rehreshAll() async {
+    final box = GetStorage();
+    final santriId = box.read('santriId') ?? 0;
+    await fetchProfileSantri(santriId);
+    await fecthBerita();
   }
 }

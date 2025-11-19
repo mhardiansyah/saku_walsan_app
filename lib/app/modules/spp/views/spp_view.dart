@@ -2,15 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/spp_controller.dart';
+import 'package:saku_walsan_app/app/modules/spp/controllers/spp_controller.dart';
 
 class SppView extends GetView<SppController> {
   const SppView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(SppController());
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -26,19 +24,19 @@ class SppView extends GetView<SppController> {
           onPressed: () => Get.back(),
         ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== Statistik SPP =====
               Obx(
                 () => Row(
                   children: [
                     Expanded(
                       child: _buildStatCard(
-                        title: "SPP Sudah terbayarkan",
+                        title: "Pembayaran yang\nSudah Terbayar",
                         count: controller.paidCount.value.toString(),
                         color: const Color(0xFF22C55E),
                       ),
@@ -46,7 +44,7 @@ class SppView extends GetView<SppController> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildStatCard(
-                        title: "SPP Belum terbayarkan",
+                        title: "Pembayaran yang\nBelum Terbayar",
                         count: controller.unpaidCount.value.toString(),
                         color: const Color(0xFFF59E0B),
                       ),
@@ -54,13 +52,14 @@ class SppView extends GetView<SppController> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 24),
 
-              // ===== Riwayat SPP =====
               const Text(
-                "Riwayat SPP",
+                "Riwayat Pembayaran",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
+
               const SizedBox(height: 12),
 
               _buildHistoryItem(
@@ -69,26 +68,38 @@ class SppView extends GetView<SppController> {
                 amount: "Rp2.500.000",
                 imageUrl: "https://i.pravatar.cc/150?img=3",
               ),
+
               const SizedBox(height: 10),
+
               _buildHistoryItem(
                 name: "Muhammad Dafleng",
                 date: "20 Jan 2025",
                 amount: "Rp2.500.000",
                 imageUrl: "https://i.pravatar.cc/150?img=4",
               ),
+
               const SizedBox(height: 24),
 
-              // ===== Pembayaran =====
+              // =================== PEMBAYARAN ===================
               const Text(
                 "Pembayaran",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 12),
 
-              // ===== Dropdown Bulan =====
               Obx(
                 () => GestureDetector(
-                  onTap: () => _showMonthPickerDialog(context, controller),
+                  onTap: () {
+                    if (controller.step.value == 1) {
+                      _showJenisDialog(context, controller);
+                    } else if (controller.step.value == 2) {
+                      _showTahunDialog(context, controller);
+                    } else if (controller.step.value == 3) {
+                      _showMonthPickerDialog(context, controller);
+                    } else {
+                      _showMonthPickerDialog(context, controller);
+                    }
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -101,26 +112,46 @@ class SppView extends GetView<SppController> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          controller.selectedMonth.value.isEmpty
-                              ? "Silahkan Pilih Bulan Pembayaran"
-                              : controller.selectedMonth.value,
-                          style: TextStyle(
-                            color: controller.selectedMonth.value.isEmpty
-                                ? Colors.grey
-                                : Colors.black,
-                            fontSize: 14,
-                          ),
-                        ),
+                        Obx(() {
+                          String text = "";
+
+                          if (controller.step.value == 1) {
+                            text = controller.selectedJenis.value.isEmpty
+                                ? "Pilih Jenis Pembayaran"
+                                : controller.selectedJenis.value;
+                          } else if (controller.step.value == 2) {
+                            text = controller.selectedTahun.value.isEmpty
+                                ? "Pilih Tahun Pembayaran"
+                                : controller.selectedTahun.value;
+                          } else if (controller.step.value == 3) {
+                            text = controller.selectedMonth.value.isEmpty
+                                ? "Pilih Bulan Pembayaran"
+                                : controller.selectedMonth.value;
+                          } else {
+                            text = controller.selectedMonth.value;
+                          }
+
+                          return Text(
+                            text,
+                            style: TextStyle(
+                              color: text.contains("Pilih")
+                                  ? Colors.grey
+                                  : Colors.black,
+                              fontSize: 14,
+                            ),
+                          );
+                        }),
+
                         const Icon(Icons.arrow_drop_down),
                       ],
                     ),
                   ),
                 ),
               ),
+
               const SizedBox(height: 32),
 
-              // ===== Tombol Bayar =====
+              // =================== TOMBOL BAYAR ===================
               Obx(
                 () => SizedBox(
                   width: double.infinity,
@@ -161,7 +192,8 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // === Statistik Card ===
+  // ============================== UI COMPONENTS ==============================
+
   Widget _buildStatCard({
     required String title,
     required String count,
@@ -195,7 +227,6 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // === Riwayat Card ===
   Widget _buildHistoryItem({
     required String name,
     required String date,
@@ -273,7 +304,8 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // === Popup Pilihan Bulan (Setengah Layar) ===
+  // ============================== POPUP BULAN ==============================
+
   void _showMonthPickerDialog(BuildContext context, SppController controller) {
     Get.dialog(
       Dialog(
@@ -283,55 +315,300 @@ class SppView extends GetView<SppController> {
           padding: const EdgeInsets.all(16),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxHeight: MediaQuery.of(context).size.height * 0.75,
             ),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     "Pilih Bulan Pembayaran",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 10),
                   const Divider(),
+
                   Obx(
-                      () => Column(
+                    () => Column(
                       children: controller.availableSpp.map((month) {
                         final isSelected =
                             controller.selectedMonth.value == month;
-                        return RadioListTile<String>(
-                          title: Text(month),
-                          value: month,
-                          groupValue: controller.selectedMonth.value,
-                          activeColor: Colors.orange,
-                          onChanged: (val) {
-                            controller.selectedMonth.value = val!;
-                          },
+
+                        return GestureDetector(
+                          onTap: () => controller.selectBulan(month),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  month,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                                Container(
+                                  width: 26,
+                                  height: 26,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? Colors.orange
+                                          : Colors.black,
+                                      width: 2,
+                                    ),
+                                    color: isSelected
+                                        ? Colors.orange
+                                        : Colors.transparent,
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       }).toList(),
                     ),
                   ),
-                  const SizedBox(height: 10),
+
+                  const SizedBox(height: 20),
+
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1B8A4E),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () {
+                        controller.step.value = 4;
                         Get.back();
                       },
                       child: const Text(
                         "Terapkan",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================== POPUP JENIS ==============================
+
+  void _showJenisDialog(BuildContext context, SppController controller) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.75,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Pilih Jenis Pembayaran",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(),
+
+                  Obx(
+                    () => Column(
+                      children: controller.jenisList.map((item) {
+                        final isSelected =
+                            controller.selectedJenis.value == item;
+
+                        return GestureDetector(
+                          onTap: () => controller.selectJenis(item),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  item,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                                Container(
+                                  width: 26,
+                                  height: 26,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? Colors.orange
+                                          : Colors.black,
+                                      width: 2,
+                                    ),
+                                    color: isSelected
+                                        ? Colors.orange
+                                        : Colors.transparent,
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 16,
+                                        )
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1B8A4E),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        controller.step.value = 2;
+                        Get.back();
+                      },
+                      child: const Text(
+                        "Selanjutnya",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================== POPUP TAHUN ==============================
+
+  void _showTahunDialog(BuildContext context, SppController controller) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.75,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Pilih Tahun",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(),
+
+                  Obx(
+                    () => Column(
+                      children: controller.tahunList.map((item) {
+                        final isSelected =
+                            controller.selectedTahun.value == item;
+
+                        return GestureDetector(
+                          onTap: () => controller.selectTahun(item),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  item,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                                Container(
+                                  width: 26,
+                                  height: 26,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? Colors.orange
+                                          : Colors.black,
+                                      width: 2,
+                                    ),
+                                    color: isSelected
+                                        ? Colors.orange
+                                        : Colors.transparent,
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 16,
+                                        )
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1B8A4E),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        controller.step.value = 3;
+                        Get.back();
+                      },
+                      child: const Text(
+                        "Selanjutnya",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
