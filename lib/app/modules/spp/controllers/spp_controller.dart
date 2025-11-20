@@ -4,59 +4,21 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/core/models/spp_models.dart';
 
 class SppController extends GetxController {
-  // === STEP WIZARD (foto 1–4) ===
-  /// 1 = pilih jenis
-  /// 2 = pilih tahun
-  /// 3 = pilih bulan
-  /// 4 = detail pembayaran
   var step = 1.obs;
 
-  // === Pilihan Dummy (MODE A) ===
-  final List<String> defaultJenis = const [
-    'SPP',
-    'Uang Masuk',
-    'Eskul',
-  ];
-
-  final List<String> defaultTahun = const [
-    'Tahun Ke-1',
-    'Tahun Ke-2',
-    'Tahun Ke-3',
-  ];
-
-  final List<String> defaultBulan = const [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
-  ];
-
-  // === State dropdown ===
   var jenisList = <String>[].obs;
   var selectedJenis = ''.obs;
 
   var tahunList = <String>[].obs;
   var selectedTahun = ''.obs;
 
-  var bulanList = <String>[].obs;
-  var selectedBulan = ''.obs;
-
-  // === State lama (month picker dialog) ===
-  var selectedMonth = ''.obs; // masih dipakai dialog lama
+  var selectedMonth = ''.obs;
   var availableSpp = <String>[].obs;
 
-  // === Data dari API ===
   var isLoading = false.obs;
   var sppList = <Datum>[].obs;
 
@@ -70,12 +32,8 @@ class SppController extends GetxController {
   void onInit() {
     super.onInit();
 
-    // --- MODE A: isi dummy ke observable list ---
-    jenisList.assignAll(defaultJenis);
-    tahunList.assignAll(defaultTahun);
-    bulanList.assignAll(defaultBulan);
+    tahunList.assignAll(['Tahun Ke-1', 'Tahun Ke-2', 'Tahun Ke-3']);
 
-    // --- fetch data SPP untuk summary (paid / unpaid) ---
     final nisn = box.read('nisn') ?? '';
     debugPrint('NISN loaded: $nisn');
 
@@ -91,55 +49,10 @@ class SppController extends GetxController {
     }
   }
 
-  // =====================================================
-  // ===============  FUNGSI STEP WIZARD  ================
-  // =====================================================
-
-  void selectJenis(String value) {
-    selectedJenis.value = value;
-    // kalau ganti jenis, reset level bawah
-    selectedTahun.value = '';
-    selectedBulan.value = '';
-    // opsional: reset step ke 1
-    // step.value = 1;
+  // Extract month name
+  String extractMonth(DateTime date) {
+    return DateFormat('MMMM', 'id_ID').format(date);
   }
-
-  void selectTahun(String value) {
-    selectedTahun.value = value;
-    // kalau ganti tahun, reset bulan
-    selectedBulan.value = '';
-  }
-
-  void selectBulan(String value) {
-    selectedBulan.value = value;
-  }
-
-  /// dipanggil dari tombol "Selanjutnya" / "Terapkan"
-  void goToNextStep() {
-    if (step.value == 1 && selectedJenis.value.isNotEmpty) {
-      step.value = 2;
-      return;
-    }
-    if (step.value == 2 && selectedTahun.value.isNotEmpty) {
-      step.value = 3;
-      return;
-    }
-    if (step.value == 3 && selectedBulan.value.isNotEmpty) {
-      step.value = 4; // tampilkan detail pembayaran
-      return;
-    }
-  }
-
-  void resetSteps() {
-    step.value = 1;
-    selectedJenis.value = '';
-    selectedTahun.value = '';
-    selectedBulan.value = '';
-  }
-
-  // =====================================================
-  // ==================  FETCH SPP API  ==================
-  // =====================================================
 
   Future<void> fetchSpp(String nisn) async {
     try {
@@ -161,33 +74,38 @@ class SppController extends GetxController {
 
       if (res.statusCode == 200) {
         final decoded = jsonDecode(res.body);
-
         final Spp sppResponse = Spp.fromJson(decoded);
 
-        // Ambil hanya `List<Datum>` dari data.data
         final List<Datum> allItems = sppResponse.data.data;
 
-        // Filter FULLDAY / BOARDING
-        final filtered = allItems.where((d) {
-          final tipe = d.student.tipeProgram.toUpperCase();
-          return tipe == "FULLDAY" || tipe == "BOARDING";
-        }).toList();
+        // Assign list
+        sppList.assignAll(allItems);
 
-        sppList.assignAll(filtered);
+        final kategoriList = allItems.map((e) => e.kategori).toSet().toList();
+        debugPrint('Kategori ditemukan: $kategoriList');
+        jenisList.assignAll(kategoriList);
 
-        // Hitungan LUNAS
+        final tahunListAPI = allItems
+            .map((e) => e.tanggalDibuat.year.toString())
+            .toSet()
+            .toList();
+        tahunList.assignAll(tahunListAPI);
+        debugPrint("Tahun dari API: $tahunListAPI");
+
+        // Count paid/unpaid
         paidCount.value = sppList.where((e) => e.status == "LUNAS").length;
-
-        // Hitungan BELUM LUNAS
         final unpaidItems = sppList.where((e) => e.status == "BELUM_LUNAS");
         unpaidCount.value = unpaidItems.length;
 
-        // Ambil bulan unik dari yang belum lunas
-        final unpaidMonths = unpaidItems.map((e) => e.month).toSet().toList();
+        // Collect unique months
+        final unpaidMonths = unpaidItems
+            .map((e) => extractMonth(e.tanggalDibuat))
+            .toSet()
+            .toList();
+
         availableSpp.assignAll(unpaidMonths);
 
         debugPrint('Available SPP: $availableSpp');
-        debugPrint('Total Data: ${sppList.length}');
       } else {
         Get.snackbar(
           "Error",
@@ -209,16 +127,11 @@ class SppController extends GetxController {
     }
   }
 
-  Future<void> refreshData() async {
-    final nisn = box.read('nisn') ?? '';
-    if (nisn.isNotEmpty) {
-      await fetchSpp(nisn);
-    }
-  }
-
-  /// filter bulan berdasarkan STRING, bukan index
+  // Filter berdasarkan bulan (dari tanggalDibuat)
   List<Datum> get sppBySelectedMonth {
     if (selectedMonth.value.isEmpty) return sppList;
-    return sppList.where((spp) => spp.month == selectedMonth.value).toList();
+    return sppList
+        .where((spp) => extractMonth(spp.tanggalDibuat) == selectedMonth.value)
+        .toList();
   }
 }

@@ -80,27 +80,24 @@ class SppView extends GetView<SppController> {
 
               const SizedBox(height: 24),
 
-              // =================== PEMBAYARAN ===================
               const Text(
                 "Pembayaran",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 12),
 
-              Obx(
-                () => GestureDetector(
-                  onTap: () {
-                    if (controller.step.value == 1) {
-                      _showJenisDialog(context, controller);
-                    } else if (controller.step.value == 2) {
-                      _showTahunDialog(context, controller);
-                    } else if (controller.step.value == 3) {
-                      _showMonthPickerDialog(context, controller);
-                    } else {
-                      _showMonthPickerDialog(context, controller);
-                    }
-                  },
-                  child: Container(
+              GestureDetector(
+                onTap: () {
+                  if (controller.step.value == 1) {
+                    _showJenisDialog(context, controller);
+                  } else if (controller.step.value == 2) {
+                    _showTahunDialog(context, controller);
+                  } else {
+                    _showMonthPickerDialog(context, controller);
+                  }
+                },
+                child: Obx(
+                  () => Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 14,
@@ -112,36 +109,27 @@ class SppView extends GetView<SppController> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Obx(() {
-                          String text = "";
-
-                          if (controller.step.value == 1) {
-                            text = controller.selectedJenis.value.isEmpty
-                                ? "Pilih Jenis Pembayaran"
-                                : controller.selectedJenis.value;
-                          } else if (controller.step.value == 2) {
-                            text = controller.selectedTahun.value.isEmpty
-                                ? "Pilih Tahun Pembayaran"
-                                : controller.selectedTahun.value;
-                          } else if (controller.step.value == 3) {
-                            text = controller.selectedMonth.value.isEmpty
-                                ? "Pilih Bulan Pembayaran"
-                                : controller.selectedMonth.value;
-                          } else {
-                            text = controller.selectedMonth.value;
-                          }
-
-                          return Text(
-                            text,
-                            style: TextStyle(
-                              color: text.contains("Pilih")
-                                  ? Colors.grey
-                                  : Colors.black,
-                              fontSize: 14,
-                            ),
-                          );
-                        }),
-
+                        Text(
+                          controller.step.value == 1
+                              ? (controller.selectedJenis.value.isEmpty
+                                    ? "Pilih Jenis Pembayaran"
+                                    : controller.selectedJenis.value)
+                              : controller.step.value == 2
+                              ? (controller.selectedTahun.value.isEmpty
+                                    ? "Pilih Tahun Pembayaran"
+                                    : controller.selectedTahun.value)
+                              : controller.selectedMonth.value.isEmpty
+                              ? "Pilih Bulan Pembayaran"
+                              : controller.selectedMonth.value,
+                          style: TextStyle(
+                            color:
+                                controller.step.value == 1 &&
+                                    controller.selectedJenis.value.isEmpty
+                                ? Colors.grey
+                                : Colors.black,
+                            fontSize: 14,
+                          ),
+                        ),
                         const Icon(Icons.arrow_drop_down),
                       ],
                     ),
@@ -151,7 +139,6 @@ class SppView extends GetView<SppController> {
 
               const SizedBox(height: 32),
 
-              // =================== TOMBOL BAYAR ===================
               Obx(
                 () => SizedBox(
                   width: double.infinity,
@@ -192,7 +179,6 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // ============================== UI COMPONENTS ==============================
 
   Widget _buildStatCard({
     required String title,
@@ -304,7 +290,6 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // ============================== POPUP BULAN ==============================
 
   void _showMonthPickerDialog(BuildContext context, SppController controller) {
     Get.dialog(
@@ -335,7 +320,7 @@ class SppView extends GetView<SppController> {
                             controller.selectedMonth.value == month;
 
                         return GestureDetector(
-                          onTap: () => controller.selectBulan(month),
+                          onTap: () => controller.selectedMonth(month),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 10,
@@ -410,8 +395,6 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // ============================== POPUP JENIS ==============================
-
   void _showJenisDialog(BuildContext context, SppController controller) {
     Get.dialog(
       Dialog(
@@ -441,7 +424,7 @@ class SppView extends GetView<SppController> {
                             controller.selectedJenis.value == item;
 
                         return GestureDetector(
-                          onTap: () => controller.selectJenis(item),
+                          onTap: () => controller.selectedJenis(item),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 10,
@@ -547,7 +530,7 @@ class SppView extends GetView<SppController> {
                             controller.selectedTahun.value == item;
 
                         return GestureDetector(
-                          onTap: () => controller.selectTahun(item),
+                          onTap: () => controller.selectedTahun(item),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 10,

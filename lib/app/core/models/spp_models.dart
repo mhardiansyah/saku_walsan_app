@@ -3,17 +3,13 @@ class Spp {
   final String msg;
   final Data data;
 
-  Spp({
-    required this.status,
-    required this.msg,
-    required this.data,
-  });
+  Spp({required this.status, required this.msg, required this.data});
 
   factory Spp.fromJson(Map<String, dynamic> json) => Spp(
-        status: json["status"],
-        msg: json["msg"],
-        data: Data.fromJson(json["data"]),
-      );
+    status: json["status"],
+    msg: json["msg"],
+    data: Data.fromJson(json["data"]),
+  );
 }
 
 class Data {
@@ -50,64 +46,51 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        success: json["success"],
-        message: Message.fromJson(json["message"]),
-        code: json["code"],
-        status: json["status"],
-        timestamp: DateTime.parse(json["timestamp"]),
-        locale: json["locale"],
-        data: List<Datum>.from(
-            json["data"].map((x) => Datum.fromJson(x))),
-        included: json["included"],
-        totalData: json["total_data"],
-        meta: Meta.fromJson(json["meta"]),
-        pagination: json["pagination"],
-        errors: json["errors"],
-        links: Links.fromJson(json["links"]),
-        others: Links.fromJson(json["others"]),
-      );
+    success: json["success"],
+    message: Message.fromJson(json["message"]),
+    code: json["code"],
+    status: json["status"],
+    timestamp: DateTime.parse(json["timestamp"]),
+    locale: json["locale"],
+    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    included: json["included"],
+    totalData: json["total_data"],
+    meta: Meta.fromJson(json["meta"]),
+    pagination: json["pagination"],
+    errors: json["errors"],
+    links: Links.fromJson(json["links"]),
+    others: Links.fromJson(json["others"]),
+  );
 }
 
 class Datum {
   final String id;
-  final String studentId;
-  final String month; // -> STRING
-  final String year;
+  final String namaPembayaran;
+  final String kategori;
   final int nominal;
-  final String status;
-  final dynamic paidAt;
-  final DateTime createdAt;
   final int remainder;
-  final int paid;
-  final Student student;
+  final String status;
+  final DateTime tanggalDibuat;
 
   Datum({
     required this.id,
-    required this.studentId,
-    required this.month,
-    required this.year,
+    required this.namaPembayaran,
+    required this.kategori,
     required this.nominal,
-    required this.status,
-    required this.paidAt,
-    required this.createdAt,
     required this.remainder,
-    required this.paid,
-    required this.student,
+    required this.status,
+    required this.tanggalDibuat,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        id: json["id"],
-        studentId: json["studentId"],
-        month: json["month"],
-        year: json["year"],
-        nominal: json["nominal"],
-        status: json["status"],
-        paidAt: json["paidAt"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        remainder: json["remainder"],
-        paid: json["paid"],
-        student: Student.fromJson(json["student"]),
-      );
+    id: json["id"],
+    namaPembayaran: json["namaPembayaran"],
+    kategori: json["kategori"],
+    nominal: json["nominal"],
+    remainder: json["remainder"],
+    status: json["status"],
+    tanggalDibuat: DateTime.parse(json["tanggalDibuat"]),
+  );
 }
 
 class Student {
@@ -140,19 +123,19 @@ class Student {
   });
 
   factory Student.fromJson(Map<String, dynamic> json) => Student(
-        id: json["id"],
-        name: json["name"],
-        inductNumber: json["InductNumber"],
-        dorm: json["dorm"],
-        generation: json["generation"],
-        status: json["status"],
-        major: json["major"],
-        isDelete: json["isDelete"],
-        nisn: json["NISN"],
-        tipeProgram: json["tipeProgram"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
-      );
+    id: json["id"],
+    name: json["name"],
+    inductNumber: json["InductNumber"],
+    dorm: json["dorm"],
+    generation: json["generation"],
+    status: json["status"],
+    major: json["major"],
+    isDelete: json["isDelete"],
+    nisn: json["NISN"],
+    tipeProgram: json["tipeProgram"],
+    createdAt: DateTime.parse(json["createdAt"]),
+    updatedAt: DateTime.parse(json["updatedAt"]),
+  );
 }
 
 class Message {
@@ -161,10 +144,8 @@ class Message {
 
   Message({required this.en, required this.id});
 
-  factory Message.fromJson(Map<String, dynamic> json) => Message(
-        en: json["en"],
-        id: json["id"],
-      );
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      Message(en: json["en"], id: json["id"]);
 }
 
 class Meta {
@@ -187,14 +168,14 @@ class Meta {
   });
 
   factory Meta.fromJson(Map<String, dynamic> json) => Meta(
-        requestId: json["request_id"],
-        traceId: json["trace_id"],
-        executionTimeMs: json["execution_time_ms"],
-        apiVersion: json["api_version"],
-        environment: json["environment"],
-        auth: json["auth"],
-        debug: json["debug"],
-      );
+    requestId: json["request_id"],
+    traceId: json["trace_id"],
+    executionTimeMs: json["execution_time_ms"],
+    apiVersion: json["api_version"],
+    environment: json["environment"],
+    auth: json["auth"],
+    debug: json["debug"],
+  );
 }
 
 class Links {
