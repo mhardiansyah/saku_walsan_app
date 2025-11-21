@@ -24,6 +24,7 @@ abstract class Routes {
   static const DETAIL_RIWAYAT_TRANSAKSI = _Paths.DETAIL_RIWAYAT_TRANSAKSI;
   static const SPP = _Paths.SPP;
   static const METHOD_PEMBAYARAN = _Paths.METHOD_PEMBAYARAN;
+  static const NOTIF_PAYMENT = _Paths.NOTIF_PAYMENT;
 }
 
 abstract class _Paths {
@@ -49,4 +50,5 @@ abstract class _Paths {
   static const DETAIL_RIWAYAT_TRANSAKSI = '/detail-riwayat-transaksi';
   static const SPP = '/spp';
   static const METHOD_PEMBAYARAN = '/method-pembayaran';
+  static const NOTIF_PAYMENT = '/notif-payment';
 }

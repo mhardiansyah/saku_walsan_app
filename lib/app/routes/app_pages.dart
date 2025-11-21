@@ -24,6 +24,8 @@ import '../modules/midtrans_payment/bindings/midtrans_payment_binding.dart';
 import '../modules/midtrans_payment/views/midtrans_payment_view.dart';
 import '../modules/nominal/bindings/nominal_binding.dart';
 import '../modules/nominal/views/nominal_view.dart';
+import '../modules/notif_payment/bindings/notif_payment_binding.dart';
+import '../modules/notif_payment/views/notif_payment_view.dart';
 import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
 import '../modules/otp/bindings/otp_binding.dart';
@@ -154,6 +156,11 @@ class AppPages {
       name: _Paths.METHOD_PEMBAYARAN,
       page: () => const MethodPembayaranView(),
       binding: MethodPembayaranBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIF_PAYMENT,
+      page: () => const NotifPaymentView(),
+      binding: NotifPaymentBinding(),
     ),
   ];
 }

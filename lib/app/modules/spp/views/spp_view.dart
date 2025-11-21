@@ -31,6 +31,8 @@ class SppView extends GetView<SppController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+              // ===================== CARD STAT =====================
               Obx(
                 () => Row(
                   children: [
@@ -55,6 +57,7 @@ class SppView extends GetView<SppController> {
 
               const SizedBox(height: 24),
 
+              // ===================== RIWAYAT =====================
               const Text(
                 "Riwayat Pembayaran",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -63,19 +66,10 @@ class SppView extends GetView<SppController> {
               const SizedBox(height: 12),
 
               _buildHistoryItem(
-                name: "Muhammad Dafleng",
-                date: "20 Jan 2025",
-                amount: "Rp2.500.000",
-                imageUrl: "https://i.pravatar.cc/150?img=3",
-              ),
-
-              const SizedBox(height: 10),
-
-              _buildHistoryItem(
-                name: "Muhammad Dafleng",
-                date: "20 Jan 2025",
-                amount: "Rp2.500.000",
-                imageUrl: "https://i.pravatar.cc/150?img=4",
+                name: "Tidak Ada Data",
+                date: "-",
+                amount: "-",
+                imageUrl: "https://i.pravatar.cc/150?img=1",
               ),
 
               const SizedBox(height: 24),
@@ -97,48 +91,54 @@ class SppView extends GetView<SppController> {
                   }
                 },
                 child: Obx(
-                  () => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          controller.step.value == 1
-                              ? (controller.selectedJenis.value.isEmpty
-                                    ? "Pilih Jenis Pembayaran"
-                                    : controller.selectedJenis.value)
-                              : controller.step.value == 2
-                              ? (controller.selectedTahun.value.isEmpty
-                                    ? "Pilih Tahun Pembayaran"
-                                    : controller.selectedTahun.value)
-                              : controller.selectedMonth.value.isEmpty
-                              ? "Pilih Bulan Pembayaran"
-                              : controller.selectedMonth.value,
-                          style: TextStyle(
-                            color:
-                                controller.step.value == 1 &&
-                                    controller.selectedJenis.value.isEmpty
-                                ? Colors.grey
-                                : Colors.black,
-                            fontSize: 14,
+                  () {
+                    String display = "Pilih Jenis Pembayaran";
+
+                    if (controller.step.value == 1) {
+                      display = controller.selectedJenis.value.isEmpty
+                          ? "Pilih Jenis Pembayaran"
+                          : controller.selectedJenis.value;
+                    } else if (controller.step.value == 2) {
+                      display = controller.selectedTahun.value.isEmpty
+                          ? "Pilih Tahun Pembayaran"
+                          : controller.selectedTahun.value;
+                    } else if (controller.step.value == 3) {
+                      display = controller.selectedMonth.value.isEmpty
+                          ? "Pilih Bulan Pembayaran"
+                          : controller.monthName(controller.selectedMonth.value);
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            display,
+                            style: TextStyle(
+                              color: display.contains("Pilih")
+                                  ? Colors.grey
+                                  : Colors.black,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                        const Icon(Icons.arrow_drop_down),
-                      ],
-                    ),
-                  ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
 
+              // ===================== BUTTON BAYAR =====================
               const SizedBox(height: 32),
-
               Obx(
                 () => SizedBox(
                   width: double.infinity,
@@ -157,7 +157,7 @@ class SppView extends GetView<SppController> {
                         : () {
                             Get.snackbar(
                               "Berhasil",
-                              "Pembayaran bulan ${controller.selectedMonth.value} berhasil diproses",
+                              "Pembayaran bulan ${controller.monthName(controller.selectedMonth.value)} berhasil diproses",
                               backgroundColor: Colors.green.shade100,
                             );
                           },
@@ -179,6 +179,9 @@ class SppView extends GetView<SppController> {
     );
   }
 
+  // ===================================================================
+  // =======================  CARD & HISTORY  ==========================
+  // ===================================================================
 
   Widget _buildStatCard({
     required String title,
@@ -194,20 +197,16 @@ class SppView extends GetView<SppController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
+          Text(title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 12)),
           const SizedBox(height: 6),
-          Text(
-            count,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 36,
-            ),
-          ),
+          Text(count,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 36,
+              )),
         ],
       ),
     );
@@ -240,36 +239,25 @@ class SppView extends GetView<SppController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                Text(
-                  date,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                ),
+                Text(name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(date,
+                    style:
+                        TextStyle(color: Colors.grey.shade600, fontSize: 13)),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                amount,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
+              Text(amount,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.green.shade100,
                   borderRadius: BorderRadius.circular(20),
@@ -290,7 +278,11 @@ class SppView extends GetView<SppController> {
     );
   }
 
+  // ===================================================================
+  // ======================== POPUP DIALOGS =============================
+  // ===================================================================
 
+  // ========================== DIALOG BULAN ===========================
   void _showMonthPickerDialog(BuildContext context, SppController controller) {
     Get.dialog(
       Dialog(
@@ -315,7 +307,7 @@ class SppView extends GetView<SppController> {
 
                   Obx(
                     () => Column(
-                      children: controller.availableSpp.map((month) {
+                      children: controller.monthList.map((month) {
                         final isSelected =
                             controller.selectedMonth.value == month;
 
@@ -323,25 +315,20 @@ class SppView extends GetView<SppController> {
                           onTap: () => controller.selectedMonth(month),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 4,
-                            ),
+                                vertical: 10, horizontal: 4),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  month,
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                Text(controller.monthName(month),
+                                    style: const TextStyle(fontSize: 15)),
                                 Container(
                                   width: 26,
                                   height: 26,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: isSelected
-                                          ? Colors.orange
-                                          : Colors.black,
+                                      color:
+                                          isSelected ? Colors.orange : Colors.black,
                                       width: 2,
                                     ),
                                     color: isSelected
@@ -349,11 +336,8 @@ class SppView extends GetView<SppController> {
                                         : Colors.transparent,
                                   ),
                                   child: isSelected
-                                      ? const Icon(
-                                          Icons.check,
-                                          size: 16,
-                                          color: Colors.white,
-                                        )
+                                      ? const Icon(Icons.check,
+                                          size: 16, color: Colors.white)
                                       : null,
                                 ),
                               ],
@@ -380,10 +364,8 @@ class SppView extends GetView<SppController> {
                         controller.step.value = 4;
                         Get.back();
                       },
-                      child: const Text(
-                        "Terapkan",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: const Text("Terapkan",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -395,6 +377,7 @@ class SppView extends GetView<SppController> {
     );
   }
 
+  // ========================== DIALOG JENIS ===========================
   void _showJenisDialog(BuildContext context, SppController controller) {
     Get.dialog(
       Dialog(
@@ -427,25 +410,20 @@ class SppView extends GetView<SppController> {
                           onTap: () => controller.selectedJenis(item),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 4,
-                            ),
+                                vertical: 10, horizontal: 4),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  item,
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                Text(item,
+                                    style: const TextStyle(fontSize: 15)),
                                 Container(
                                   width: 26,
                                   height: 26,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: isSelected
-                                          ? Colors.orange
-                                          : Colors.black,
+                                      color:
+                                          isSelected ? Colors.orange : Colors.black,
                                       width: 2,
                                     ),
                                     color: isSelected
@@ -453,11 +431,8 @@ class SppView extends GetView<SppController> {
                                         : Colors.transparent,
                                   ),
                                   child: isSelected
-                                      ? const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 16,
-                                        )
+                                      ? const Icon(Icons.check,
+                                          color: Colors.white, size: 16)
                                       : null,
                                 ),
                               ],
@@ -484,10 +459,8 @@ class SppView extends GetView<SppController> {
                         controller.step.value = 2;
                         Get.back();
                       },
-                      child: const Text(
-                        "Selanjutnya",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: const Text("Selanjutnya",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -499,8 +472,7 @@ class SppView extends GetView<SppController> {
     );
   }
 
-  // ============================== POPUP TAHUN ==============================
-
+  // ========================== DIALOG TAHUN ============================
   void _showTahunDialog(BuildContext context, SppController controller) {
     Get.dialog(
       Dialog(
@@ -533,25 +505,20 @@ class SppView extends GetView<SppController> {
                           onTap: () => controller.selectedTahun(item),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 4,
-                            ),
+                                vertical: 10, horizontal: 4),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  item,
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                Text(item,
+                                    style: const TextStyle(fontSize: 15)),
                                 Container(
                                   width: 26,
                                   height: 26,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: isSelected
-                                          ? Colors.orange
-                                          : Colors.black,
+                                      color:
+                                          isSelected ? Colors.orange : Colors.black,
                                       width: 2,
                                     ),
                                     color: isSelected
@@ -559,11 +526,8 @@ class SppView extends GetView<SppController> {
                                         : Colors.transparent,
                                   ),
                                   child: isSelected
-                                      ? const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 16,
-                                        )
+                                      ? const Icon(Icons.check,
+                                          color: Colors.white, size: 16)
                                       : null,
                                 ),
                               ],
@@ -590,10 +554,8 @@ class SppView extends GetView<SppController> {
                         controller.step.value = 3;
                         Get.back();
                       },
-                      child: const Text(
-                        "Selanjutnya",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: const Text("Selanjutnya",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
