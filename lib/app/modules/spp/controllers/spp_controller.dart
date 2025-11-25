@@ -60,12 +60,12 @@ class SppController extends GetxController {
       isLoading.value = true;
 
       final uri = Uri.parse("$url/santri/tagihan/$nisn");
-      print("🔵 Requesting API: $uri");
+      print(" Requesting API: $uri");
 
       final res = await http.get(uri);
 
-      print("🔵 Status Code: ${res.statusCode}");
-      print("🔵 Response Body: ${res.body}");
+      print(" Status Code: ${res.statusCode}");
+      print(" Response Body: ${res.body}");
 
       if (res.statusCode != 200) {
         Get.snackbar(
@@ -86,7 +86,7 @@ class SppController extends GetxController {
       final List<OltherPayment> other = response.data.data.oltherPayments;
       otherList.assignAll(other);
 
-      print("📌 Jumlah SPP dari API: ${spp.length}");
+      print(" Jumlah SPP dari API: ${spp.length}");
 
       final jenis = <String>[];
       if (spp.isNotEmpty) jenis.add("SPP");
@@ -113,15 +113,17 @@ class SppController extends GetxController {
       ];
 
       final bulanAPI = spp.map((e) => e.month).toSet().toList()
-        ..sort((a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)));
+        ..sort(
+          (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
+        );
       monthList.assignAll(bulanAPI);
 
       paidCount.value = spp.where((e) => e.status != Status.BELUM_LUNAS).length;
-      unpaidCount.value =
-          spp.where((e) => e.status == Status.BELUM_LUNAS).length;
-
+      unpaidCount.value = spp
+          .where((e) => e.status == Status.BELUM_LUNAS)
+          .length;
     } catch (e) {
-      print("⛔ ERROR fetchSpp: $e");
+      print(" ERROR fetchSpp: $e");
 
       Get.snackbar(
         "Error",
@@ -134,26 +136,23 @@ class SppController extends GetxController {
     }
   }
 
-  /// =====================================================================
-  /// 🔥 DEBUGGING VERSION – summarySelectedSpp
-  /// =====================================================================
   void summarySelectedSpp() {
     print("\n============================");
-    print("📊 summarySelectedSpp() DIPANGGIL");
+    print(" summarySelectedSpp() DIPANGGIL");
     print("============================");
 
-    print("🎯 Tahun dipilih: ${selectedTahun.value}");
-    print("🟡 Bulan dipilih: $selectedMonths");
+    print(" Tahun dipilih: ${selectedTahun.value}");
+    print(" Bulan dipilih: $selectedMonths");
 
     selectedSpp.clear();
 
     if (selectedTahun.value.isEmpty) {
-      print("⛔ selectedTahun KOSONG → Tidak filter apa-apa");
+      print(" selectedTahun KOSONG → Tidak filter apa-apa");
       return;
     }
 
     for (var month in selectedMonths) {
-      print("🔍 Filtering bulan: $month | tahun: ${selectedTahun.value}");
+      print(" Filtering bulan: $month | tahun: ${selectedTahun.value}");
 
       final match = sppList.where(
         (e) =>
@@ -166,20 +165,18 @@ class SppController extends GetxController {
       selectedSpp.addAll(match);
     }
 
-    print("📦 selectedSpp (${selectedSpp.length} item):");
+    print("selectedSpp (${selectedSpp.length} item):");
 
     for (var item in selectedSpp) {
-      print("   ✔ ${item.month} ${item.year} | Rp${item.nominal}");
+      print("   ✔${item.month} ${item.year} | Rp${item.nominal}");
     }
 
-    totalNominal.value =
-        selectedSpp.fold(0, (sum, item) => sum + item.nominal);
+    totalNominal.value = selectedSpp.fold(0, (sum, item) => sum + item.nominal);
 
-    totalPembayaran.value =
-        totalNominal.value + totalAdmin.value;
+    totalPembayaran.value = totalNominal.value + totalAdmin.value;
 
-    print("💰 totalNominal: ${totalNominal.value}");
-    print("💰 totalPembayaran: ${totalPembayaran.value}");
+    print("totalNominal: ${totalNominal.value}");
+    print("totalPembayaran: ${totalPembayaran.value}");
     print("============================\n");
   }
 
