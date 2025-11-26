@@ -24,6 +24,7 @@ class SppController extends GetxController {
   var totalNominal = 0.obs;
   var totalAdmin = 5000.obs;
   var totalPembayaran = 0.obs;
+  var tempSelectedMonths = <String>[].obs;
 
   var sppList = <SppPayment>[].obs;
   var otherList = <OltherPayment>[].obs;
@@ -134,6 +135,36 @@ class SppController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void selectYear(String tahun) {
+    selectedTahun.value = tahun;
+    final urutanBulan = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+
+    final bulan =
+        sppList
+            .where((e) => e.year == tahun)
+            .map((e) => e.month)
+            .toSet()
+            .toList()
+          ..sort(
+            (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
+          );
+
+    monthList.assignAll(bulan);
   }
 
   void summarySelectedSpp() {

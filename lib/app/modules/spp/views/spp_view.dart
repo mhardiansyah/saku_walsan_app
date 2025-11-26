@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/modules/spp/controllers/spp_controller.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
 class SppView extends GetView<SppController> {
   const SppView({super.key});
@@ -24,13 +26,13 @@ class SppView extends GetView<SppController> {
           onPressed: () => Get.back(),
         ),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ================= STAT CARD =================
               Obx(
                 () => Row(
                   children: [
@@ -70,71 +72,111 @@ class SppView extends GetView<SppController> {
 
               const SizedBox(height: 24),
 
-              const Text(
-                "Pembayaran",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 12),
+              // ==================== AREA PEMBAYARAN ====================
+              Obx(() {
+                final step = controller.step.value;
+                final sudahPilihBulan = controller.selectedMonths.isNotEmpty;
 
-              GestureDetector(
-                onTap: () {
-                  if (controller.step.value == 1) {
-                    _showJenisDialog(context, controller);
-                  } else if (controller.step.value == 2) {
-                    _showTahunDialog(context, controller);
+                // 👉 Step 1–2–3 ATAU belum ada bulan terpilih:
+                // label "Pembayaran" + dropdown full width
+                if (step < 3 || !sudahPilihBulan) {
+                  String placeholder;
+                  if (step == 1) {
+                    placeholder = "Silahkan Pilih Jenis Pembayaran";
+                  } else if (step == 2) {
+                    placeholder = "Silahkan Pilih Tahun Pembayaran";
                   } else {
-                    _showMonthPickerDialog(context, controller);
-                  }
-                },
-                child: Obx(() {
-                  String display = "Pilih Jenis Pembayaran";
-
-                  if (controller.step.value == 1) {
-                    display = controller.selectedJenis.value.isEmpty
-                        ? "Pilih Jenis Pembayaran"
-                        : controller.selectedJenis.value;
-                  } else if (controller.step.value == 2) {
-                    display = controller.selectedTahun.value.isEmpty
-                        ? "Pilih Tahun Pembayaran"
-                        : controller.selectedTahun.value;
-                  } else if (controller.step.value == 3) {
-                    display = controller.selectedMonths.isEmpty
-                        ? "Pilih Bulan Pembayaran"
-                        : controller.selectedMonths
-                              .map((e) => controller.monthName(e))
-                              .join(", ");
+                    placeholder = "Silahkan Pilih Bulan Pembayaran";
                   }
 
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          display,
-                          style: TextStyle(
-                            color: display.contains("Pilih")
-                                ? Colors.grey
-                                : Colors.black,
-                            fontSize: 14,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Pembayaran",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () {
+                          if (step == 1) {
+                            _showJenisDialog(context, controller);
+                          } else if (step == 2) {
+                            _showTahunDialog(context, controller);
+                          } else {
+                            _showMonthPickerDialog(context, controller);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade400),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                placeholder,
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
                           ),
                         ),
-                        const Icon(Icons.arrow_drop_down),
-                      ],
-                    ),
+                      ),
+                    ],
                   );
-                }),
-              ),
+                }
+
+                // 👉 Step 4 + sudah pilih bulan:
+                // Row: label kiri + dropdown kecil kanan
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Pembayaran",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => _showMonthPickerDialog(context, controller),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade400),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: const [
+                            Text("Pilih bulan", style: TextStyle(fontSize: 13)),
+                            SizedBox(width: 6),
+                            Icon(Icons.arrow_drop_down),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
 
               const SizedBox(height: 16),
 
+              // ==================== STEP 4 LIST SPP ===================
               Obx(() {
                 if (controller.step.value != 4) return const SizedBox();
 
@@ -183,7 +225,6 @@ class SppView extends GetView<SppController> {
                                     } else {
                                       controller.selectedMonths.add(item.month);
                                     }
-                                    controller.summarySelectedSpp();
                                   },
                                   child: Container(
                                     width: 26,
@@ -209,9 +250,7 @@ class SppView extends GetView<SppController> {
                                         : null,
                                   ),
                                 ),
-
                                 const SizedBox(width: 12),
-
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -234,7 +273,6 @@ class SppView extends GetView<SppController> {
                                     ],
                                   ),
                                 ),
-
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
@@ -258,9 +296,7 @@ class SppView extends GetView<SppController> {
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 12),
-
                             TextField(
                               controller: cicilanCtrl,
                               keyboardType: TextInputType.number,
@@ -285,22 +321,14 @@ class SppView extends GetView<SppController> {
                         ),
                       );
                     }),
-
                     const SizedBox(height: 20),
-
+                    // =================== RINGKASAN ====================
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: const Color(0xFF1B8A4E),
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.10),
-                            blurRadius: 6,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,11 +352,11 @@ class SppView extends GetView<SppController> {
                               children: [
                                 _summaryRow(
                                   "Biaya Pokok:",
-                                  "Rp${controller.totalNominal}",
+                                  formatRupiah(controller.totalNominal.toInt()),
                                 ),
                                 _summaryRow(
                                   "Biaya Admin:",
-                                  "Rp${controller.totalAdmin}",
+                                  formatRupiah(controller.totalAdmin.toInt()),
                                 ),
                                 const Divider(
                                   color: Colors.white,
@@ -336,87 +364,74 @@ class SppView extends GetView<SppController> {
                                 ),
                                 _summaryRow(
                                   "Total Biaya:",
-                                  "Rp${controller.totalPembayaran}",
+                                  formatRupiah(
+                                    controller.totalPembayaran.toInt(),
+                                  ),
                                   bold: true,
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF1B8A4E),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              onPressed: () {
+                                Get.toNamed(
+                                  Routes.METHOD_PEMBAYARAN,
+                                  arguments: {
+                                    "bulan": controller.selectedMonths.first,
+                                    "tahun": controller.selectedTahun.value,
+                                    "jenis": controller.selectedJenis.value,
+                                    "total": controller.totalPembayaran.value,
+                                  },
+                                );
+                              },
+                              child: const Text(
+                                "Bayar",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red.shade300,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              onPressed: () {
+                                controller.step.value = 3;
+                                controller.cicilanControllers.clear();
+                              },
+                              child: const Text(
+                                "Batalkan",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF1B8A4E),
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        onPressed: () {
-                          for (var item in controller.selectedSpp) {
-                            final ctrl =
-                                controller.cicilanControllers[item.month];
-                            final cicilan =
-                                int.tryParse(ctrl?.text.trim() ?? "0") ?? 0;
-
-                            if (cicilan > 0) {
-                              item.paid = cicilan;
-                              item.remainder = item.nominal - cicilan;
-                            }
-                          }
-
-                          Get.snackbar(
-                            "Berhasil",
-                            "Pembayaran diproses",
-                            backgroundColor: Colors.green.shade100,
-                          );
-                        },
-                        child: const Text(
-                          "Bayar",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade300,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        onPressed: () {
-                          controller.step.value = 3;
-                          controller.cicilanControllers.clear();
-                        },
-                        child: const Text(
-                          "Batalkan",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
                   ],
                 );
               }),
@@ -565,6 +580,8 @@ class SppView extends GetView<SppController> {
   }
 
   void _showMonthPickerDialog(BuildContext context, SppController controller) {
+    controller.tempSelectedMonths.assignAll(controller.selectedMonths);
+
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,
@@ -585,30 +602,21 @@ class SppView extends GetView<SppController> {
                   ),
                   const SizedBox(height: 10),
                   const Divider(),
-
                   Obx(
                     () => Column(
                       children: controller.monthList.map((item) {
-                        final isSelected = controller.selectedMonths.contains(
-                          item,
-                        );
+                        final isSelected = controller.tempSelectedMonths
+                            .contains(item);
 
                         return GestureDetector(
                           onTap: () {
                             if (isSelected) {
-                              controller.selectedMonths.remove(item);
-                              print("REMOVE bulan: $item");
+                              controller.tempSelectedMonths.remove(item);
                             } else {
-                              controller.selectedMonths.add(item);
-                              print("ADD bulan: $item");
+                              controller.tempSelectedMonths.add(item);
                             }
-
-                            print(
-                              "selectedMonths sekarang: ${controller.selectedMonths}",
-                            );
                             controller.summarySelectedSpp();
                           },
-
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 10,
@@ -651,9 +659,7 @@ class SppView extends GetView<SppController> {
                       }).toList(),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -665,6 +671,9 @@ class SppView extends GetView<SppController> {
                         ),
                       ),
                       onPressed: () {
+                        controller.selectedMonths.assignAll(
+                          controller.tempSelectedMonths,
+                        );
                         controller.summarySelectedSpp();
                         controller.step.value = 4;
                         Get.back();
@@ -705,7 +714,6 @@ class SppView extends GetView<SppController> {
                   ),
                   const SizedBox(height: 10),
                   const Divider(),
-
                   Obx(
                     () => Column(
                       children: controller.jenisList.map((item) {
@@ -758,9 +766,7 @@ class SppView extends GetView<SppController> {
                       }).toList(),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -811,7 +817,6 @@ class SppView extends GetView<SppController> {
                   ),
                   const SizedBox(height: 10),
                   const Divider(),
-
                   Obx(
                     () => Column(
                       children: controller.tahunList.map((item) {
@@ -820,7 +825,7 @@ class SppView extends GetView<SppController> {
 
                         return GestureDetector(
                           onTap: () {
-                            controller.selectedTahun(item);
+                            controller.selectYear(item);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -864,9 +869,7 @@ class SppView extends GetView<SppController> {
                       }).toList(),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -894,5 +897,14 @@ class SppView extends GetView<SppController> {
         ),
       ),
     );
+  }
+
+  String formatRupiah(int amount) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(amount);
   }
 }

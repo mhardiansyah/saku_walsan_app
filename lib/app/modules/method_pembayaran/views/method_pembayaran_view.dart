@@ -95,17 +95,37 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                 child: ElevatedButton(
                   onPressed: controller.selectedMethod.value == -1
                       ? null
-                      : () {
-                          final pilih =
-                              controller.metodePembayaran[controller
-                                  .selectedMethod
-                                  .value]["nama"];
-                          Get.snackbar(
-                            "Berhasil",
-                            "Anda memilih $pilih",
-                            snackPosition: SnackPosition.BOTTOM,
+                      : () async {
+                          print("MULAI PROSES CREATE WINPAY VA...");
+                          print(
+                            "Metode dipilih: ${controller.metodePembayaran[controller.selectedMethod.value]["nama"]}",
                           );
+                          print("Bulan : ${controller.bulan.value}");
+                          print("Tahun : ${controller.tahun.value}");
+                          print("Jenis : ${controller.jenis.value}");
+                          print("Total : ${controller.total.value}");
+                          print("trxType : ${controller.trxType}");
+                          print("channel : ${controller.channel}");
+
+                          final result = await controller.createWinpayVa(
+                            trxType: controller.trxType,
+                            channel: controller.channel,
+                          );
+
+                          print("HASIL CREATE VA:");
+                          print(result);
+
+                          if (result != null) {
+                            Get.snackbar(
+                              "Berhasil",
+                              "VA berhasil dibuat!",
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.green,
+                              colorText: Colors.white,
+                            );
+                          }
                         },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF22AD61),
                     disabledBackgroundColor: Colors.grey.shade300,
