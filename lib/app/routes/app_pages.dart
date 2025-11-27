@@ -6,6 +6,8 @@ import '../modules/detail_notifikasi/bindings/detail_notifikasi_binding.dart';
 import '../modules/detail_notifikasi/views/detail_notifikasi_view.dart';
 import '../modules/detail_riwayat/bindings/detail_riwayat_binding.dart';
 import '../modules/detail_riwayat/views/detail_riwayat_view.dart';
+import '../modules/detail_riwayat_transaksi/bindings/detail_riwayat_transaksi_binding.dart';
+import '../modules/detail_riwayat_transaksi/views/detail_riwayat_transaksi_view.dart';
 import '../modules/forgotpassword/bindings/forgotpassword_binding.dart';
 import '../modules/forgotpassword/views/forgotpassword_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -42,14 +44,12 @@ import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
 import '../modules/spp/bindings/spp_binding.dart';
 import '../modules/spp/views/spp_view.dart';
-import '../modules/topup_success/bindings/topup_success_binding.dart';
-import '../modules/topup_success/views/topup_success_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
-  static const INITIAL = Routes.SPP;
+  static const INITIAL = Routes.LOGIN;
 
   static final routes = [
     GetPage(
@@ -143,24 +143,24 @@ class AppPages {
       binding: DetailBeritaBinding(),
     ),
     GetPage(
+      name: _Paths.DETAIL_RIWAYAT_TRANSAKSI,
+      page: () => const DetailRiwayatTransaksiView(),
+      binding: DetailRiwayatTransaksiBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPP,
+      page: () => const SppView(),
+      binding: SppBinding(),
+    ),
+    GetPage(
       name: _Paths.METHOD_PEMBAYARAN,
-      page: () => MethodPembayaranView(),
+      page: () => const MethodPembayaranView(),
       binding: MethodPembayaranBinding(),
     ),
     GetPage(
       name: _Paths.NOTIF_PAYMENT,
       page: () => const NotifPaymentView(),
       binding: NotifPaymentBinding(),
-    ),
-    GetPage(
-      name: _Paths.TOPUP_SUCCESS,
-      page: () => const TopupSuccessView(),
-      binding: TopupSuccessBinding(),
-    ),
-    GetPage(
-      name: _Paths.SPP,
-      page: () => const SppView(),
-      binding: SppBinding(),
     ),
   ];
 }

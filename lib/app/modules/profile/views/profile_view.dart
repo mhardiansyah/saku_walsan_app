@@ -14,7 +14,6 @@ class ProfileView extends GetView<ProfileController> {
       body: SafeArea(
         child: Column(
           children: [
-            // ===== HEADER =====
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -32,11 +31,7 @@ class ProfileView extends GetView<ProfileController> {
                   const CircleAvatar(
                     radius: 45,
                     backgroundColor: Color(0xFFFFB800),
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 50,
-                    ),
+                    child: Icon(Icons.person, color: Colors.white, size: 50),
                   ),
                   const SizedBox(height: 15),
 
@@ -50,15 +45,6 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
                   const SizedBox(height: 3),
-
-                  // Email pengguna
-                  const Text(
-                    "Rahsyaa@gmail.com",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -74,61 +60,77 @@ class ProfileView extends GetView<ProfileController> {
                   // Nama
                   const Text(
                     "Nama:",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  Obx(() => _buildField(controller.name.value,
-                      isBold: true, backgroundColor: const Color(0xFFF3F1F1))),
+                  Obx(
+                    () => _buildField(
+                      controller.name.value,
+                      isBold: true,
+                      backgroundColor: const Color(0xFFF3F1F1),
+                    ),
+                  ),
 
                   const SizedBox(height: 18),
 
                   // Email
                   const Text(
                     "Email:",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  Obx(() => _buildField(controller.email.value,
-                      backgroundColor: const Color(0xFFF9F9F9))),
+                  Obx(
+                    () => _buildField(
+                      controller.email.value,
+                      backgroundColor: const Color(0xFFF9F9F9),
+                    ),
+                  ),
 
                   const SizedBox(height: 18),
 
                   // Password
+                  // Password
                   const Text(
                     "Password",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  Obx(() => Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF9F9F9),
-                          borderRadius: BorderRadius.circular(12),
-                          border:
-                              Border.all(color: Colors.grey.withOpacity(0.3)),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 14),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              controller.password.value,
-                              style: const TextStyle(fontSize: 15),
+                  Obx(
+                    () => Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9F9F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 14,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Password text
+                          Text(
+                            controller.isPasswordHidden.value
+                                ? '********'
+                                : controller.password.value,
+                            style: const TextStyle(fontSize: 15),
+                          ),
+
+                          // Visibility icon
+                          GestureDetector(
+                            onTap: controller.togglePasswordVisibility,
+                            child: Icon(
+                              controller.isPasswordHidden.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: Colors.grey,
                             ),
-                            const Icon(Icons.visibility_off_outlined,
-                                color: Colors.grey),
-                          ],
-                        ),
-                      )),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -169,8 +171,11 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   // Widget field untuk nama & email
-  Widget _buildField(String value,
-      {bool isBold = false, Color backgroundColor = Colors.white}) {
+  Widget _buildField(
+    String value, {
+    bool isBold = false,
+    Color backgroundColor = Colors.white,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),

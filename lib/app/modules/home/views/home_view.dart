@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:saku_walsan_app/app/modules/riwayat_transaksi/controllers/riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
+import 'package:shimmer/shimmer.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -12,6 +14,7 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final box = GetStorage();
     final userName = box.read('name') ?? 'User';
+    final riwayatController = Get.put(RiwayatTransaksiController());
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
@@ -56,198 +59,299 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// --- SALDO ---
-            Container(
+      body: RefreshIndicator(
+        onRefresh: () => controller.rehreshAll(),
+
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+            child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
               width: double.infinity,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B8A4E),
                 borderRadius: BorderRadius.circular(16),
+                image: const DecorationImage(
+                image: AssetImage('assets/icons/card.png'),
+                fit: BoxFit.cover,
+                ),
+                color: const Color(0xFF1B8A4E),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Saldo anak Hari ini:",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                const Text(
+                  "Saldo anak Hari ini:",
+                  style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatRupiah(controller.saldo.value),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+                const SizedBox(height: 8),
+                Obx(
+                  () => Text(
+                  formatRupiah(controller.saldo.value),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              /// --- SUMMARY CARDS (FIXED GRID OVERFLOW) ---
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final double itemWidth = (constraints.maxWidth - 12) / 2;
+                  final double itemHeight = 150;
+
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: itemWidth / itemHeight,
+                    children: [
+                      Obx(
+                        () => _buildSummaryCard(
+                          "Total Transaksi",
+                          controller.jumlahTransaksi.value.toString(),
+                          Colors.green,
+                          "assets/icons/dolars.png",
+                          "",
+                          showBadge: false,
                         ),
                       ),
-                      onPressed: () {},
-                      icon: const Icon(Icons.list, color: Colors.white),
-                      label: const Text(
-                        "Lihat Detail",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 20),
-
-            /// --- SUMMARY CARDS ---
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-              children: [
-                _buildSummaryCard(
-                  "Total Transaksi",
-                  "20",
-                  Colors.green,
-                  "assets/icons/dolars.png",
-                  "+10",
-                ),
-                _buildSummaryCard(
-                  "Total Kasbon",
-                  "300K",
-                  Colors.red,
-                  "assets/icons/kasbon.png",
-                  "+10",
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Berita SMK",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Obx(() {
-              if (controller.isloading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (controller.beritaList.isEmpty) {
-                return const Text("Belum ada berita.");
-              }
-
-              return SizedBox(
-                height: 180,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: controller.beritaList.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final berita = controller.beritaList[index];
-                    print(
-                      "➡️ Berita dikirim ke Detail: ${berita.title.rendered}",
-                    );
-                    return GestureDetector(
-                      onTap: () {
-                        final berita = controller.beritaList[index];
-                        Get.toNamed(Routes.DETAIL_BERITA, arguments: berita);
-                      },
-                      child: Container(
-                        width: 220,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                      Obx(
+                        () => _buildSummaryCard(
+                          "Total Kasbon",
+                          formatRupiah(controller.totalHutang.value),
+                          Color(0XFFFF001E),
+                          "assets/icons/kasbon.png",
+                          "",
+                          showBadge: false,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Berita SMK",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Obx(() {
+                if (controller.isloading.value) {
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.9,
+                        ),
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
                               ),
-                              child: Image.network(
-                                berita.yoastHeadJson.ogImage.first.url,
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
                                 height: 100,
                                 width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (ctx, err, stack) => Container(
-                                  height: 100,
+                                decoration: BoxDecoration(
                                   color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.broken_image,
-                                    size: 40,
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
                                   ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    berita.title.rendered,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 14,
+                                      width: double.infinity,
+                                      color: Colors.grey[300],
                                     ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    DateFormat(
-                                      "dd MMMM yyyy",
-                                    ).format(berita.date),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+                                    const SizedBox(height: 6),
+                                    Container(
+                                      height: 14,
+                                      width: 80,
+                                      color: Colors.grey[300],
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+
+                final displayedList = controller.showAllBerita.value
+                    ? controller.beritaList
+                    : controller.beritaList.take(4).toList();
+
+                if (controller.beritaList.isEmpty) {
+                  return const Text("Belum ada berita.");
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.9,
+                          ),
+                      itemCount: displayedList.length,
+                      itemBuilder: (context, index) {
+                        final berita = displayedList[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Get.toNamed(
+                              Routes.DETAIL_BERITA,
+                              arguments: berita,
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                          ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                  child: Image.network(
+                                    berita.yoastHeadJson.ogImage.first.url,
+                                    height: 100,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, err, stack) =>
+                                        Container(
+                                          height: 100,
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 40,
+                                          ),
+                                        ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        berita.title.rendered,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        DateFormat(
+                                          "dd MMMM yyyy",
+                                        ).format(berita.date),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    if (controller.beritaList.length > 4)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => controller.showAllBerita.toggle(),
+                          child: Text(
+                            controller.showAllBerita.value
+                                ? "See Less"
+                                : "See All",
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              );
-            }),
-          ],
+                  ],
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );
@@ -258,8 +362,9 @@ class HomeView extends GetView<HomeController> {
     String value,
     Color color,
     String imagePath,
-    String badge,
-  ) {
+    String badge, {
+    bool showBadge = true, // 🔥 opsional
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: color,
@@ -289,47 +394,60 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    badge,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
+
+                // 🔥 Badge muncul hanya jika showBadge == true
+                if (showBadge)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      badge,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],

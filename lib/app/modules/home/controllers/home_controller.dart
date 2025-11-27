@@ -6,15 +6,23 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:saku_walsan_app/app/core/models/berita_models.dart';
+import 'package:saku_walsan_app/app/core/models/santriSummary_models.dart';
 import 'package:saku_walsan_app/app/core/models/santri_models.dart';
 
 class HomeController extends GetxController {
-  var saldo = 150000.obs;
+  var saldo = 0.obs;
   var topupBulanan = 500000.obs;
   var totalJajan = 200000.obs;
-  var totalHutang = 50000.obs;
+  var totalHutang = 0.obs;
   var isloading = false.obs;
   var beritaList = <BeritaRespose>[].obs;
+  var totalTransaksi = 0.obs;
+  var totalHutangBulainIni = 0.obs;
+  var totalHutangBulainLalu = 0.obs;
+  var countJajan = 0.obs;
+  var jumlahTransaksi = 0.obs;
+
+  var showAllBerita = false.obs;
 
   var url = dotenv.env['base_url'];
 
@@ -25,7 +33,7 @@ class HomeController extends GetxController {
     final box = GetStorage();
     final santriId = box.read('santriId') ?? 0;
     if (santriId != null) {
-      fecthSaldoAnak(santriId);
+      fetchProfileSantri(santriId);
     }
   }
 
@@ -38,7 +46,7 @@ class HomeController extends GetxController {
       final respose = await http.get(urlBerita);
       if (respose.statusCode == 200) {
         final List data = jsonDecode(respose.body);
-        print("data berita: $data");
+        // print("data berita: $data");
         beritaList.value = data.map((e) => BeritaRespose.fromJson(e)).toList();
       }
     } catch (e) {
@@ -48,33 +56,79 @@ class HomeController extends GetxController {
     }
   }
 
-  Future fecthSaldoAnak(int santriId) async {
+  // Future fecthSaldoAnak(int santriId) async {
+  //   try {
+  //     isloading.value = true;
+  //     final urlSaldo = Uri.parse("${url}/santri/detail/${santriId}");
+  //     final response = await http.get(
+  //       urlSaldo,
+  //       headers: {'Content-Type': 'application/json'},
+  //     );
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
+  //       final santri = Santri.fromJson(data);
+
+  //       saldo.value = santri.saldo ?? 0;
+  //       totalHutang.value = santri.hutang ?? 0;
+  //     } else {
+  //       Get.snackbar(
+  //         'Error',
+  //         'Failed to fetch saldo anak',
+  //         backgroundColor: Colors.red,
+  //       );
+  //       print('Kode status: ${response.statusCode}');
+  //       print('Response body: ${response.body}');
+  //     }
+  //   } catch (e) {
+  //     print("error fetch saldo anak: $e");
+  //   } finally {
+  //     isloading.value = false;
+  //   }
+  // }
+
+  Future fetchProfileSantri(int santriId) async {
     try {
       isloading.value = true;
-      final urlSaldo = Uri.parse("${url}/santri/detail/${santriId}");
-      final response = await http.get(
-        urlSaldo,
+      final urlProfile = Uri.parse("${url}/santri/profile/${santriId}");
+      final res = await http.get(
+        urlProfile,
         headers: {'Content-Type': 'application/json'},
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final santri = Santri.fromJson(data);
+      printInfo(info: "fetch profile santri url: $urlProfile");
+      if (res.statusCode == 200) {
+        final dataProfile = jsonDecode(res.body);
 
-        saldo.value = santri.saldo ?? 0;
-        totalHutang.value = santri.hutang ?? 0;
+        final summary = SantriSummary.fromJson(dataProfile['data']);
+        print("data summary: $dataProfile");
+        print("data summary: $summary");
+
+        saldo.value = summary.saldo ?? 0;
+        totalHutang.value = summary.hutang ?? 0;
+        jumlahTransaksi.value = summary.totalTransaksi ?? 0;
+
+        print("saldo santri: ${saldo.value}");
+        print("total hutang santri: ${totalHutang.value}");
+        print("jumlah transaksi santri: ${jumlahTransaksi.value}");
       } else {
         Get.snackbar(
           'Error',
-          'Failed to fetch saldo anak',
+          'Failed to fetch profile santri',
           backgroundColor: Colors.red,
         );
-        print('Kode status: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        print('Kode status: ${res.statusCode}');
+        print('Response body: ${res.body}');
       }
     } catch (e) {
-      print("error fetch saldo anak: $e");
+      print("error fetch profile santri: $e");
     } finally {
       isloading.value = false;
     }
+  }
+
+  Future rehreshAll() async {
+    final box = GetStorage();
+    final santriId = box.read('santriId') ?? 0;
+    await fetchProfileSantri(santriId);
+    await fecthBerita();
   }
 }

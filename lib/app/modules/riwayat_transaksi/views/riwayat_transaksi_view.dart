@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:saku_walsan_app/app/modules/detail_riwayat_transaksi/controllers/detail_riwayat_transaksi_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/riwayat_transaksi_controller.dart';
 
@@ -55,6 +57,7 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                   child: Obx(
                     () => GestureDetector(
                       onTap: () {
+                        // buka dialog filter hari
                         Get.dialog(
                           Dialog(
                             backgroundColor: Colors.white,
@@ -70,13 +73,24 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                     () => Column(
                                       children: [
                                         RadioListTile<String>(
+                                          title: const Text("Semua"),
+                                          value: "Semua",
+                                          groupValue:
+                                              controller.tempSelectedHari.value,
+                                          activeColor: Colors.orange,
+                                          onChanged: (val) {
+                                            controller.tempSelectedHari.value =
+                                                val!;
+                                          },
+                                        ),
+                                        RadioListTile<String>(
                                           title: const Text("Hari Ini"),
                                           value: "Hari ini",
                                           groupValue:
-                                              controller.selectedHari.value,
+                                              controller.tempSelectedHari.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedHari.value =
+                                            controller.tempSelectedHari.value =
                                                 val!;
                                           },
                                         ),
@@ -84,10 +98,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Perminggu"),
                                           value: "Minggu ini",
                                           groupValue:
-                                              controller.selectedHari.value,
+                                              controller.tempSelectedHari.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedHari.value =
+                                            controller.tempSelectedHari.value =
                                                 val!;
                                           },
                                         ),
@@ -95,10 +109,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Perbulan"),
                                           value: "Bulan ini",
                                           groupValue:
-                                              controller.selectedHari.value,
+                                              controller.tempSelectedHari.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedHari.value =
+                                            controller.tempSelectedHari.value =
                                                 val!;
                                           },
                                         ),
@@ -106,10 +120,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Pertahun"),
                                           value: "Tahun ini",
                                           groupValue:
-                                              controller.selectedHari.value,
+                                              controller.tempSelectedHari.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedHari.value =
+                                            controller.tempSelectedHari.value =
                                                 val!;
                                           },
                                         ),
@@ -123,7 +137,7 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(
                                           0xFF1B8A4E,
-                                        ), // hijau
+                                        ),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             30,
@@ -134,6 +148,8 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                         ),
                                       ),
                                       onPressed: () {
+                                        controller.selectedHari.value =
+                                            controller.tempSelectedHari.value;
                                         Get.back();
                                       },
                                       child: const Text(
@@ -182,6 +198,7 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                   child: Obx(
                     () => GestureDetector(
                       onTap: () {
+                        // buka dialog filter sesi
                         Get.dialog(
                           Dialog(
                             backgroundColor: Colors.white,
@@ -200,10 +217,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Semua"),
                                           value: "Semua",
                                           groupValue:
-                                              controller.selectedSesi.value,
+                                              controller.tempSelectedSesi.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedSesi.value =
+                                            controller.tempSelectedSesi.value =
                                                 val!;
                                           },
                                         ),
@@ -211,10 +228,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Pagi"),
                                           value: "Pagi",
                                           groupValue:
-                                              controller.selectedSesi.value,
+                                              controller.tempSelectedSesi.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedSesi.value =
+                                            controller.tempSelectedSesi.value =
                                                 val!;
                                           },
                                         ),
@@ -222,10 +239,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Siang"),
                                           value: "Siang",
                                           groupValue:
-                                              controller.selectedSesi.value,
+                                              controller.tempSelectedSesi.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedSesi.value =
+                                            controller.tempSelectedSesi.value =
                                                 val!;
                                           },
                                         ),
@@ -233,10 +250,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Sore"),
                                           value: "Sore",
                                           groupValue:
-                                              controller.selectedSesi.value,
+                                              controller.tempSelectedSesi.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedSesi.value =
+                                            controller.tempSelectedSesi.value =
                                                 val!;
                                           },
                                         ),
@@ -244,10 +261,10 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                           title: const Text("Malam"),
                                           value: "Malam",
                                           groupValue:
-                                              controller.selectedSesi.value,
+                                              controller.tempSelectedSesi.value,
                                           activeColor: Colors.orange,
                                           onChanged: (val) {
-                                            controller.selectedSesi.value =
+                                            controller.tempSelectedSesi.value =
                                                 val!;
                                           },
                                         ),
@@ -272,6 +289,8 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                         ),
                                       ),
                                       onPressed: () {
+                                        controller.selectedSesi.value =
+                                            controller.tempSelectedSesi.value;
                                         Get.back();
                                       },
                                       child: const Text(
@@ -317,17 +336,14 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
 
             const SizedBox(height: 20),
 
-            /// --- List Riwayat ---
             Expanded(
               child: Obx(
                 () => ListView.builder(
                   itemCount: controller.filteredTransaksi.length,
                   itemBuilder: (context, index) {
                     final transaksi = controller.filteredTransaksi[index];
-
                     final String nama = transaksi.santri.name ?? 'Santri';
                     final String kelas = transaksi.santri.kelas ?? '-';
-                    // final String judul = transaksi ?? '';
                     final int jumlah = transaksi.totalAmount ?? 0;
                     final DateTime tanggal = transaksi.createdAt as DateTime;
                     final String tanggalStr = DateFormat(
@@ -335,12 +351,11 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                     ).format(tanggal);
                     final String tipe = transaksi.status ?? '';
 
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(12),
+                    return GestureDetector(
                       onTap: () {
                         Get.toNamed(
-                          Routes.DETAIL_RIWAYAT,
-                          arguments: transaksi,
+                          Routes.DETAIL_RIWAYAT_TRANSAKSI,
+                          arguments: transaksi.id,
                         );
                       },
                       child: Container(
@@ -359,43 +374,33 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                         ),
                         child: Row(
                           children: [
-                            // Avatar
                             CircleAvatar(
                               radius: 28,
                               backgroundColor: Colors.grey[200],
                               child: const Icon(
                                 Icons.person,
-                                color: Colors.grey,
+                                color: Color.fromRGBO(158, 158, 158, 1),
                               ),
                             ),
                             const SizedBox(width: 12),
-
-                          // Nama, kelas & judul
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  nama,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    nama,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  kelas,
-                                  style: TextStyle(color: Colors.grey[700]),
-                                ),
-                                const SizedBox(height: 4),
-                                // Text(
-                                //   judul,
-                                //   style: const TextStyle(fontSize: 14),
-                                // ),
-                              ],
+                                  Text(
+                                    kelas,
+                                    style: TextStyle(color: Colors.grey[700]),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-
-                            // Jumlah + tanggal
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
@@ -408,7 +413,7 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Rp ${jumlah.toString()}",
+                                  formatRupiah(jumlah),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black87,
@@ -451,5 +456,14 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
         ),
       ),
     );
+  }
+
+  String formatRupiah(int amount) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(amount);
   }
 }

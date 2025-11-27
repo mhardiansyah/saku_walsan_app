@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/method_pembayaran_controller.dart';
 
-class MethodPembayaranView extends StatelessWidget {
-  final MethodPembayaranController c = Get.put(MethodPembayaranController());
+class MethodPembayaranView extends GetView<MethodPembayaranController> {
+  const MethodPembayaranView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,17 +31,16 @@ class MethodPembayaranView extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          /// LIST METODE
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: c.metodePembayaran.length,
+              itemCount: controller.metodePembayaran.length,
               itemBuilder: (context, index) {
-                final metode = c.metodePembayaran[index];
+                final metode = controller.metodePembayaran[index];
                 return GestureDetector(
-                  onTap: () => c.pilihMetode(index),
+                  onTap: () => controller.pilihMetode(index),
                   child: Container(
-                    height: 80, 
+                    height: 80,
                     margin: const EdgeInsets.only(bottom: 15),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
@@ -63,14 +62,15 @@ class MethodPembayaranView extends StatelessWidget {
                           child: Text(
                             metode["nama"]!,
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w600),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
 
-                        /// Reaktif hanya di bagian icon
                         Obx(() {
                           final isSelected =
-                              c.selectedMethod.value == index;
+                              controller.selectedMethod.value == index;
                           return Icon(
                             isSelected
                                 ? Icons.radio_button_checked
@@ -87,19 +87,24 @@ class MethodPembayaranView extends StatelessWidget {
             ),
           ),
 
-          /// TOMBOL BAYAR
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Obx(() {
               return SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: c.selectedMethod.value == -1
+                  onPressed: controller.selectedMethod.value == -1
                       ? null
                       : () {
-                          final pilih = c.metodePembayaran[c.selectedMethod.value]["nama"];
-                          Get.snackbar("Berhasil", "Anda memilih $pilih",
-                              snackPosition: SnackPosition.BOTTOM);
+                          final pilih =
+                              controller.metodePembayaran[controller
+                                  .selectedMethod
+                                  .value]["nama"];
+                          Get.snackbar(
+                            "Berhasil",
+                            "Anda memilih $pilih",
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF22AD61),

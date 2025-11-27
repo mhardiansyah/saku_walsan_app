@@ -1,30 +1,55 @@
-// ignore_for_file: invalid_use_of_protected_member
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:saku_walsan_app/app/core/models/history_models.dart';
+import 'package:saku_walsan_app/app/core/models/items_models.dart';
 
 class RiwayatTransaksiController extends GetxController {
   var url = dotenv.env['base_url'];
   var allHistoryList = <HistoryDetail>[].obs;
+  var allItems = <Items>[];
   var isLoading = false.obs;
 
-  var selectedHari = "Hari ini".obs;
+  // Filter aktif (dipakai buat filteredTransaksi)
+  var selectedHari = "Semua".obs;
   var selectedSesi = "Semua".obs;
+
+  // Filter sementara (dipakai di dialog)
+  var tempSelectedHari = "Semua".obs;
+  var tempSelectedSesi = "Semua".obs;
 
   final box = GetStorage();
 
   @override
   void onInit() {
     super.onInit();
-    final santriId = box.read('santriId');
-    print("⚙️ santri_id dari storage: $santriId");
+    fetchProduct();
+    final santriId = box.read('santriId') as int?;
     if (santriId != null) {
       fetchRiwayatTransaksi(santriId);
-    } else {
-      print("santri_id belum ada di storage");
+    }
+  }
+
+  Future<void> fetchProduct() async {
+    try {
+      final urlItems = Uri.parse("$url/items");
+      final response = await http.get(urlItems);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonresponse = json.decode(response.body);
+        final List<dynamic> data = jsonresponse['data'];
+        // print("Products data: $data");
+        allItems = data.map((item) => Items.fromJson(item)).toList();
+      } else {
+        Get.snackbar('Error', 'Gagal ambil data produk');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed fetch: $e', backgroundColor: Colors.red);
     }
   }
 
@@ -33,7 +58,6 @@ class RiwayatTransaksiController extends GetxController {
       isLoading.value = true;
       var urlRiwayatTransaksi = Uri.parse("$url/history/santri/$santriId");
       final response = await http.get(urlRiwayatTransaksi);
-
       if (response.statusCode == 200) {
         final data = historyFromJson(response.body);
         allHistoryList.value = data.historyDetail;
@@ -47,11 +71,55 @@ class RiwayatTransaksiController extends GetxController {
     }
   }
 
+  int get totalTransaksiBulanIni {
+    final now = DateTime.now();
+    return allHistoryList
+        .where(
+          (t) => t.createdAt.month == now.month && t.createdAt.year == now.year,
+        )
+        .length;
+  }
+
+  int get totalHutangBulanIni {
+    final now = DateTime.now();
+    final kasbonBulanIni = allHistoryList
+        .where(
+          (t) =>
+              t.createdAt.month == now.month &&
+              t.createdAt.year == now.year &&
+              t.status.toLowerCase() == 'Hutang',
+        )
+        .fold<int>(0, (sum, t) => sum + t.totalAmount);
+    return kasbonBulanIni;
+  }
+
+  int get totalHutangBulanLalu {
+    final now = DateTime.now();
+    final lastMonth = DateTime(now.year, now.month - 1);
+    final kasbonBulanLalu = allHistoryList
+        .where(
+          (t) =>
+              t.createdAt.month == lastMonth.month &&
+              t.createdAt.year == lastMonth.year &&
+              t.status.toLowerCase() == 'Hutang',
+        )
+        .fold<int>(0, (sum, t) => sum + t.totalAmount);
+    return kasbonBulanLalu;
+  }
+
+  double get persentaseKasbon {
+    final bulanLalu = totalHutangBulanLalu;
+    final bulanIni = totalHutangBulanIni;
+    if (bulanLalu == 0 && bulanIni == 0) return 0;
+    if (bulanLalu == 0) return 100;
+    return ((bulanIni - bulanLalu) / bulanLalu) * 100;
+  }
+
   List<HistoryDetail> get filteredTransaksi {
     final now = DateTime.now();
     var list = allHistoryList.toList();
 
-    // filter hari
+    // Filter Hari
     list = list.where((t) {
       final d = t.createdAt;
       switch (selectedHari.value) {
@@ -67,12 +135,12 @@ class RiwayatTransaksiController extends GetxController {
           return d.month == now.month && d.year == now.year;
         case "Tahun ini":
           return d.year == now.year;
-        default:
+        default: // Semua
           return true;
       }
     }).toList();
 
-    // filter sesi
+    // Filter Sesi
     list = list.where((t) {
       final h = t.createdAt.hour;
       switch (selectedSesi.value) {
@@ -84,7 +152,7 @@ class RiwayatTransaksiController extends GetxController {
           return h >= 15 && h < 18;
         case "Malam":
           return h >= 18 || h < 5;
-        default:
+        default: // Semua
           return true;
       }
     }).toList();
