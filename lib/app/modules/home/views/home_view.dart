@@ -74,6 +74,10 @@ class HomeView extends GetView<HomeController> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF1B8A4E),
                   borderRadius: BorderRadius.circular(16),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/icons/cardWalsan.png'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

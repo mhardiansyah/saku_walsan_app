@@ -11,7 +11,7 @@ class MethodPembayaranController extends GetxController {
   var url = dotenv.env['base_url'];
 
   // argument dari SPP
-  var bulan = ''.obs;
+  var bulan = <String>[].obs;
   var tahun = ''.obs;
   var jenis = ''.obs;
   var total = 0.obs;
@@ -23,7 +23,7 @@ class MethodPembayaranController extends GetxController {
     final args = Get.arguments;
 
     if (args != null) {
-      bulan.value = args['bulan'] ?? '';
+      bulan.assignAll(args['bulan'] ?? []);
       tahun.value = args['tahun'] ?? '';
       jenis.value = args['jenis'] ?? '';
       total.value = args['total'] ?? 0;
@@ -37,11 +37,9 @@ class MethodPembayaranController extends GetxController {
   }
 
   final List<Map<String, String>> metodePembayaran = [
-    {"nama": "Bank BCA", "logo": "assets/icons/BCA.png"},
     {"nama": "Bank BSI", "logo": "assets/icons/BSI.png"},
     {"nama": "Bank BRI", "logo": "assets/icons/BRI.png"},
-    {"nama": "Dana", "logo": "assets/icons/DANA.png"},
-    {"nama": "Indomaret", "logo": "assets/icons/INDOMARET.png"},
+    {"nama": "Bank Muamalat", "logo": "assets/icons/muamalat.png"},
   ];
 
   Future<Map<String, dynamic>?> createWinpayVa({
@@ -58,7 +56,10 @@ class MethodPembayaranController extends GetxController {
         "customerNo": customerNo,
         "virtualAccountName": name,
         "nisn": nisn,
-        "bulan": bulan.value,
+
+        // 🟢 BULAN SEKARANG LIST, BUKAN STRING
+        "bulan": bulan.toList(),
+
         "tahun": tahun.value,
         "jenis": jenis.value,
         "totalAmount": {
@@ -69,18 +70,28 @@ class MethodPembayaranController extends GetxController {
         "additionalInfo": {"channel": channel},
       };
 
-      print(" Request Body VA: $body");
+      print(" REQUEST BODY WINPAY: $body");
 
       final res = await http.post(
         Uri.parse("$url/payments/winpay/va"),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "User-Agent": "PostmanRuntime/7.33.0",
+          "Accept-Encoding": "identity", // <-- FIX VERCEL EMPTY BODY
+        },
         body: jsonEncode(body),
       );
 
-      print(" Status: ${res.statusCode}");
-      print(" Response: ${res.body}");
+      print(" STATUS: ${res.statusCode}");
+      print(" RESPONSE: ${res.body}");
 
       if (res.statusCode == 200 || res.statusCode == 201) {
+        if (res.body.isEmpty) {
+          print("⚠️ WARNING: Response kosong dari server!!!");
+          return {"message": "Created but no content"};
+        }
+
         return jsonDecode(res.body);
       }
 
@@ -110,12 +121,13 @@ class MethodPembayaranController extends GetxController {
   }
 
   String get channel {
-    final name = metodePembayaran[selectedMethod.value]["nama"];
-    if (name!.contains("BCA")) return "BCA";
+    final name = metodePembayaran[selectedMethod.value]["nama"]!.toUpperCase();
+
     if (name.contains("BSI")) return "BSI";
     if (name.contains("BRI")) return "BRI";
-    if (name.contains("Dana")) return "DANA";
-    if (name.contains("Indomaret")) return "INDOMARET";
+    if (name.contains("MUAMALAT")) return "MUAMALAT";
+
+    // default fallback biar aman
     return "BSI";
   }
 }
