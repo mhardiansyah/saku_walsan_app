@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/method_pembayaran_controller.dart';
 
 class MethodPembayaranView extends GetView<MethodPembayaranController> {
@@ -95,17 +96,59 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                 child: ElevatedButton(
                   onPressed: controller.selectedMethod.value == -1
                       ? null
-                      : () {
-                          final pilih =
-                              controller.metodePembayaran[controller
-                                  .selectedMethod
-                                  .value]["nama"];
-                          Get.snackbar(
-                            "Berhasil",
-                            "Anda memilih $pilih",
-                            snackPosition: SnackPosition.BOTTOM,
+                      : () async {
+                          // 1️⃣ ARAHKAN LANGSUNG KE HALAMAN PROCESSING
+                          Get.toNamed(
+                            Routes.NOTIF_PAYMENT,
+                            arguments: {"status": "Pending"},
+                          );
+
+                          // 2️⃣ CETAK LOG DULU
+                          print("MULAI PROSES CREATE WINPAY VA...");
+                          print(
+                            "Metode dipilih: ${controller.metodePembayaran[controller.selectedMethod.value]["nama"]}",
+                          );
+                          print("Bulan : ${controller.bulan.value}");
+                          print("Tahun : ${controller.tahun.value}");
+                          print("Jenis : ${controller.jenis.value}");
+                          print("Total : ${controller.total.value}");
+                          print("trxType : ${controller.trxType}");
+                          print("channel : ${controller.channel}");
+
+                          // 3️⃣ JALANKAN API (TANPA MENUNGGU UI)
+                          final result = await controller.createWinpayVa(
+                            trxType: controller.trxType,
+                            channel: controller.channel,
+                          );
+
+                          print("HASIL CREATE VA:");
+                          print(result);
+
+                          if (result == null) {
+                            // GAGAL CREATE VA
+                            Get.offAllNamed(
+                              Routes.NOTIF_PAYMENT,
+                              arguments: {"status": "Failed"},
+                            );
+                            return;
+                          }
+
+                          final vaData = result["data"]["virtualAccountData"];
+                          Get.offNamed(
+                            Routes.PEMBAYARAN,
+                            arguments: {
+                              "channel": controller
+                                  .channel, // ← dari method pembayaran
+                              "trxType":
+                                  controller.trxType, // ← sesuai pilihan user
+                              "va_number": vaData["virtualAccountNo"],
+                              "va_name": vaData["virtualAccountName"],
+                              "expired": vaData["expiredDate"],
+                              "total": vaData["totalAmount"]["value"],
+                            },
                           );
                         },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF22AD61),
                     disabledBackgroundColor: Colors.grey.shade300,

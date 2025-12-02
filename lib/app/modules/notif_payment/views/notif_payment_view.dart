@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../controllers/notif_payment_controller.dart';
 
 class NotifPaymentView extends StatelessWidget {
@@ -9,7 +10,6 @@ class NotifPaymentView extends StatelessWidget {
   Widget build(BuildContext context) {
     final NotifPaymentController controller = Get.put(NotifPaymentController());
 
-    // Ambil status dari argument
     final args = Get.arguments ?? {};
     controller.setStatus(args['status'] ?? 'success');
 
@@ -19,7 +19,6 @@ class NotifPaymentView extends StatelessWidget {
         child: Obx(() {
           final status = controller.status.value;
 
-          // Variabel UI dinamis
           String title = '';
           String message = '';
           String buttonText = '';
@@ -31,28 +30,36 @@ class NotifPaymentView extends StatelessWidget {
               title = 'Pembayaran Berhasil!';
               message = 'Selamat! Pembayaran Anda telah diproses dengan sukses';
               buttonText = 'Selanjutnya';
-              imagePath = 'assets/icons/payment_success.png';
+              imagePath = 'assets/images/berhasil.png';
               break;
 
             case 'failed':
               title = 'Pembayaran Gagal!';
               message = 'Maaf, Transaksi Anda tidak dapat diproses saat ini';
               buttonText = 'Coba Lagi';
-              imagePath = 'assets/icons/topup_failed.png';
+              imagePath = 'assets/images/gagal.png';
               break;
 
             case 'topup_failed':
               title = 'Top up Gagal!';
               message = 'Maaf, Transaksi Anda tidak dapat diproses saat ini';
               buttonText = 'Coba Lagi';
-              imagePath = 'assets/icons/topup_failed.png';
+              imagePath = 'assets/images/gagal.png';
+              break;
+
+            case 'Pending':
+              title = 'Memproses...';
+              message = 'Harap Sabar, Kami sedang memproses pembayaran anda';
+              buttonText = '';
+              imagePath = ''; // kosong karena pakai Lottie
+              onPressed = () {};
               break;
 
             default:
               title = 'Pembayaran Berhasil!';
               message = 'Selamat! Pembayaran Anda telah diproses dengan sukses';
               buttonText = 'Selanjutnya';
-              imagePath = 'assets/icons/payment_success.png';
+              imagePath = 'assets/images/berhasil.png';
           }
 
           return Padding(
@@ -61,15 +68,16 @@ class NotifPaymentView extends StatelessWidget {
               children: [
                 const Spacer(),
 
-                /// GAMBAR
-                Image.asset(
-                  imagePath,
-                  height: 300,
-                  fit: BoxFit.contain,
-                ),
+                (status == 'Pending')
+                    ? Lottie.asset(
+                        'assets/animations/LoadingPaymentjson',
+                        height: 220,
+                      )
+                    : Image.asset(imagePath, height: 300, fit: BoxFit.contain),
+
                 const SizedBox(height: 30),
 
-                /// JUDUL
+                /// TITLE
                 Text(
                   title,
                   textAlign: TextAlign.center,
@@ -79,9 +87,10 @@ class NotifPaymentView extends StatelessWidget {
                     color: Colors.black87,
                   ),
                 ),
+
                 const SizedBox(height: 10),
 
-                /// PESAN
+                /// MESSAGE
                 Text(
                   message,
                   textAlign: TextAlign.center,
@@ -94,28 +103,29 @@ class NotifPaymentView extends StatelessWidget {
 
                 const Spacer(),
 
-                /// TOMBOL DI PALING BAWAH
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: onPressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                /// BUTTON (kalo ada)
+                if (buttonText.isNotEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onPressed,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(
-                      buttonText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      child: Text(
+                        buttonText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           );

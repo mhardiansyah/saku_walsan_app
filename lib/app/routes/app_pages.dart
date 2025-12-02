@@ -30,6 +30,8 @@ import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
 import '../modules/otp/bindings/otp_binding.dart';
 import '../modules/otp/views/otp_view.dart';
+import '../modules/pembayaran/bindings/pembayaran_binding.dart';
+import '../modules/pembayaran/views/pembayaran_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/regsiter_binding.dart';
@@ -161,6 +163,11 @@ class AppPages {
       name: _Paths.NOTIF_PAYMENT,
       page: () => const NotifPaymentView(),
       binding: NotifPaymentBinding(),
+    ),
+    GetPage(
+      name: _Paths.PEMBAYARAN,
+      page: () => const PembayaranView(),
+      binding: PembayaranBinding(),
     ),
   ];
 }

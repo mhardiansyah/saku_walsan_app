@@ -24,6 +24,7 @@ class SppController extends GetxController {
   var totalNominal = 0.obs;
   var totalAdmin = 5000.obs;
   var totalPembayaran = 0.obs;
+  var tempSelectedMonths = <String>[].obs;
 
   var sppList = <SppPayment>[].obs;
   var otherList = <OltherPayment>[].obs;
@@ -55,6 +56,42 @@ class SppController extends GetxController {
     }
   }
 
+  bool isSequentialAndNoSkip(List<String> selected) {
+  final urutanBulan = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  if (selected.isEmpty) return true;
+
+  final sorted = [...selected]
+    ..sort((a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)));
+
+  // ambil index bulan paling kecil dan paling besar
+  final firstIndex = urutanBulan.indexOf(sorted.first);
+  final lastIndex = urutanBulan.indexOf(sorted.last);
+
+  // semua bulan di range harus terpilih
+  for (int i = firstIndex; i <= lastIndex; i++) {
+    if (!sorted.contains(urutanBulan[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
   Future<void> fetchSpp(String nisn) async {
     try {
       isLoading.value = true;
@@ -80,10 +117,10 @@ class SppController extends GetxController {
       final decoded = jsonDecode(res.body);
       final Spp response = Spp.fromJson(decoded);
 
-      final List<SppPayment> spp = response.data.data.sppPayment;
+      final spp = response.data.data.sppPayment;
       sppList.assignAll(spp);
 
-      final List<OltherPayment> other = response.data.data.oltherPayments;
+      final other = response.data.data.oltherPayments;
       otherList.assignAll(other);
 
       print(" Jumlah SPP dari API: ${spp.length}");
@@ -136,48 +173,55 @@ class SppController extends GetxController {
     }
   }
 
+  void selectYear(String tahun) {
+    selectedTahun.value = tahun;
+
+    final urutanBulan = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+
+    final bulan =
+        sppList
+            .where((e) => e.year == tahun)
+            .map((e) => e.month)
+            .toSet()
+            .toList()
+          ..sort(
+            (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
+          );
+
+    monthList.assignAll(bulan);
+  }
+
   void summarySelectedSpp() {
-    print("\n============================");
-    print(" summarySelectedSpp() DIPANGGIL");
-    print("============================");
-
-    print(" Tahun dipilih: ${selectedTahun.value}");
-    print(" Bulan dipilih: $selectedMonths");
-
     selectedSpp.clear();
 
-    if (selectedTahun.value.isEmpty) {
-      print(" selectedTahun KOSONG → Tidak filter apa-apa");
-      return;
-    }
+    if (selectedTahun.value.isEmpty) return;
 
     for (var month in selectedMonths) {
-      print(" Filtering bulan: $month | tahun: ${selectedTahun.value}");
-
       final match = sppList.where(
         (e) =>
             e.month.toLowerCase() == month.toLowerCase() &&
             e.year == selectedTahun.value,
       );
 
-      print("   ➤ Ditemukan ${match.length} data dari API");
-
       selectedSpp.addAll(match);
-    }
-
-    print("selectedSpp (${selectedSpp.length} item):");
-
-    for (var item in selectedSpp) {
-      print("   ✔${item.month} ${item.year} | Rp${item.nominal}");
     }
 
     totalNominal.value = selectedSpp.fold(0, (sum, item) => sum + item.nominal);
 
     totalPembayaran.value = totalNominal.value + totalAdmin.value;
-
-    print("totalNominal: ${totalNominal.value}");
-    print("totalPembayaran: ${totalPembayaran.value}");
-    print("============================\n");
   }
 
   String monthName(String input) {
