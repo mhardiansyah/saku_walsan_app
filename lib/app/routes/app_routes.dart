@@ -26,6 +26,7 @@ abstract class Routes {
   static const METHOD_PEMBAYARAN = _Paths.METHOD_PEMBAYARAN;
   static const NOTIF_PAYMENT = _Paths.NOTIF_PAYMENT;
   static const PEMBAYARAN = _Paths.PEMBAYARAN;
+  static const WINPAY_HISTORY = _Paths.WINPAY_HISTORY;
 }
 
 abstract class _Paths {
@@ -53,4 +54,5 @@ abstract class _Paths {
   static const METHOD_PEMBAYARAN = '/method-pembayaran';
   static const NOTIF_PAYMENT = '/notif-payment';
   static const PEMBAYARAN = '/pembayaran';
+  static const WINPAY_HISTORY = '/winpay-history';
 }

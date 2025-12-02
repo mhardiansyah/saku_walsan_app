@@ -46,12 +46,14 @@ import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
 import '../modules/spp/bindings/spp_binding.dart';
 import '../modules/spp/views/spp_view.dart';
+import '../modules/winpay_history/bindings/winpay_history_binding.dart';
+import '../modules/winpay_history/views/winpay_history_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
-  static const INITIAL = Routes.LOGIN;
+  static const INITIAL = Routes.WINPAY_HISTORY;
 
   static final routes = [
     GetPage(
@@ -168,6 +170,11 @@ class AppPages {
       name: _Paths.PEMBAYARAN,
       page: () => const PembayaranView(),
       binding: PembayaranBinding(),
+    ),
+    GetPage(
+      name: _Paths.WINPAY_HISTORY,
+      page: () => const WinpayHistoryView(),
+      binding: WinpayHistoryBinding(),
     ),
   ];
 }
