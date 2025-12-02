@@ -82,6 +82,7 @@ class HomeView extends GetView<HomeController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 12),
                     const Text(
                       "Saldo anak Hari ini:",
                       style: TextStyle(

@@ -56,41 +56,40 @@ class SppController extends GetxController {
     }
   }
 
+  bool isSequentialAndNoSkip(List<String> selected) {
+  final urutanBulan = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
 
-  bool isValidSequence(List<String> selected) {
-    final urutanBulan = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
+  if (selected.isEmpty) return true;
 
-    if (selected.isEmpty) return true;
+  final sorted = [...selected]
+    ..sort((a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)));
 
-    // Sort data dulu
-    final sorted = [...selected]
-      ..sort((a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)));
+  // ambil index bulan paling kecil dan paling besar
+  final firstIndex = urutanBulan.indexOf(sorted.first);
+  final lastIndex = urutanBulan.indexOf(sorted.last);
 
-    // Cek apakah bulan berurutan
-    for (int i = 0; i < sorted.length - 1; i++) {
-      final idx1 = urutanBulan.indexOf(sorted[i]);
-      final idx2 = urutanBulan.indexOf(sorted[i + 1]);
-
-      if (idx2 - idx1 != 1) {
-        return false;
-      }
+  // semua bulan di range harus terpilih
+  for (int i = firstIndex; i <= lastIndex; i++) {
+    if (!sorted.contains(urutanBulan[i])) {
+      return false;
     }
-
-    return true;
   }
+
+  return true;
+}
 
 
   Future<void> fetchSpp(String nisn) async {
@@ -151,12 +150,15 @@ class SppController extends GetxController {
       ];
 
       final bulanAPI = spp.map((e) => e.month).toSet().toList()
-        ..sort((a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)));
+        ..sort(
+          (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
+        );
       monthList.assignAll(bulanAPI);
 
       paidCount.value = spp.where((e) => e.status != Status.BELUM_LUNAS).length;
-      unpaidCount.value =
-          spp.where((e) => e.status == Status.BELUM_LUNAS).length;
+      unpaidCount.value = spp
+          .where((e) => e.status == Status.BELUM_LUNAS)
+          .length;
     } catch (e) {
       print(" ERROR fetchSpp: $e");
 
@@ -170,7 +172,6 @@ class SppController extends GetxController {
       isLoading.value = false;
     }
   }
-
 
   void selectYear(String tahun) {
     selectedTahun.value = tahun;
@@ -190,18 +191,18 @@ class SppController extends GetxController {
       "Desember",
     ];
 
-    final bulan = sppList
-        .where((e) => e.year == tahun)
-        .map((e) => e.month)
-        .toSet()
-        .toList()
-      ..sort(
-        (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
-      );
+    final bulan =
+        sppList
+            .where((e) => e.year == tahun)
+            .map((e) => e.month)
+            .toSet()
+            .toList()
+          ..sort(
+            (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
+          );
 
     monthList.assignAll(bulan);
   }
-
 
   void summarySelectedSpp() {
     selectedSpp.clear();
@@ -218,13 +219,11 @@ class SppController extends GetxController {
       selectedSpp.addAll(match);
     }
 
-    totalNominal.value =
-        selectedSpp.fold(0, (sum, item) => sum + item.nominal);
+    totalNominal.value = selectedSpp.fold(0, (sum, item) => sum + item.nominal);
 
     totalPembayaran.value = totalNominal.value + totalAdmin.value;
   }
 
-  
   String monthName(String input) {
     final bulanID = [
       "Januari",
@@ -247,7 +246,6 @@ class SppController extends GetxController {
     return DateFormat.MMMM('id_ID').format(DateTime(0, m));
   }
 
-
   List<SppPayment> get filteredSpp {
     return sppList.where((item) {
       final matchJenis =
@@ -263,7 +261,6 @@ class SppController extends GetxController {
     }).toList();
   }
 
-
   void goNext() {
     if (step.value == 1 && selectedJenis.value.isNotEmpty) {
       step.value = 2;
@@ -274,7 +271,6 @@ class SppController extends GetxController {
     }
   }
 
- 
   void resetSelection() {
     step.value = 1;
     selectedJenis.value = "";

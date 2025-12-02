@@ -148,6 +148,26 @@ class SppView extends GetView<SppController> {
                       ),
                     ),
                     GestureDetector(
+                      onTap: () => _showJenisDialog(context, controller),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade400),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: const [
+                            Text("Pilih jenis", style: TextStyle(fontSize: 13)),
+                            SizedBox(width: 6),
+                            Icon(Icons.arrow_drop_down),
+                          ],
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
                       onTap: () => _showMonthPickerDialog(context, controller),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -173,7 +193,6 @@ class SppView extends GetView<SppController> {
 
               const SizedBox(height: 16),
 
-              // ==================== STEP 4 LIST SPP ===================
               Obx(() {
                 if (controller.step.value != 4) return const SizedBox();
 
@@ -230,7 +249,9 @@ class SppView extends GetView<SppController> {
                                     }
 
                                     // VALIDASI URUTAN
-                                    if (!controller.isValidSequence(temp)) {
+                                    if (!controller.isSequentialAndNoSkip(
+                                      temp,
+                                    )) {
                                       Get.snackbar(
                                         "Peringatan",
                                         "Harus memilih bulan secara berurutan, tidak boleh loncat.",
@@ -276,18 +297,30 @@ class SppView extends GetView<SppController> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Rp${item.nominal.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}",
+                                        formatRupiah(item.nominal),
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      Text(
-                                        controller.monthName(item.month),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade600,
-                                        ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            controller.monthName(item.month),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            controller.selectedTahun.value,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -420,6 +453,11 @@ class SppView extends GetView<SppController> {
                                     "total": controller.totalPembayaran.value,
                                   },
                                 );
+                                controller.cicilanControllers.clear();
+                                controller.step.value = 1;
+                                controller.selectedMonths.clear();
+                                controller.selectedTahun.value = "";
+                                controller.selectedJenis.value = "";
                               },
                               child: const Text(
                                 "Bayar",
@@ -531,15 +569,13 @@ class SppView extends GetView<SppController> {
                           onTap: () {
                             final temp = [...controller.tempSelectedMonths];
 
-                            // Tambah / hapus bulan
                             if (isSelected) {
                               temp.remove(item);
                             } else {
                               temp.add(item);
                             }
 
-                            // Cek validasi urutan
-                            if (!controller.isValidSequence(temp)) {
+                            if (!controller.isSequentialAndNoSkip(temp)) {
                               Get.snackbar(
                                 "Peringatan",
                                 "Harus memilih bulan secara berurutan, tidak boleh loncat.",
@@ -598,18 +634,8 @@ class SppView extends GetView<SppController> {
 
                   const SizedBox(height: 20),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1B8A4E),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       controller.selectedMonths.assignAll(
                         controller.tempSelectedMonths,
                       );
@@ -617,9 +643,26 @@ class SppView extends GetView<SppController> {
                       controller.step.value = 4;
                       Get.back();
                     },
-                    child: const Text(
-                      "Terapkan",
-                      style: TextStyle(color: Colors.white),
+                    child: Container(
+                      width: double.infinity,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(
+                          0xFF22C55E,
+                        ), // hijau cerah kayak desain
+                        borderRadius: BorderRadius.circular(
+                          40,
+                        ), // bikin super rounded
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Terapkan",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -708,24 +751,29 @@ class SppView extends GetView<SppController> {
 
                   const SizedBox(height: 20),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1B8A4E),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       controller.step.value = 2;
                       Get.back();
                     },
-                    child: const Text(
-                      "Selanjutnya",
-                      style: TextStyle(color: Colors.white),
+                    child: Container(
+                      width: double.infinity,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF22C55E), // hijau seperti desain
+                        borderRadius: BorderRadius.circular(
+                          40,
+                        ), // biar smooth round
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Selanjutnya",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -814,21 +862,29 @@ class SppView extends GetView<SppController> {
 
                   const SizedBox(height: 20),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1B8A4E),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       controller.step.value = 3;
                       Get.back();
                     },
-                    child: const Text(
-                      "Selanjutnya",
-                      style: TextStyle(color: Colors.white),
+                    child: Container(
+                      width: double.infinity,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF22C55E),
+                        borderRadius: BorderRadius.circular(
+                          40,
+                        ), // biar smooth round
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Selanjutnya",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
