@@ -14,8 +14,9 @@ class NominalController extends GetxController {
   final textController = TextEditingController();
   var inputText = ''.obs;
   var parentId = 0.obs;
-  var santriId = 0.obs;
+  // var santriId = 0.obs;
   var isloading = false.obs;
+  var nisn = ''.obs;
 
   final quickAmounts = [200000, 300000, 400000, 500000];
   final currencyFormatter = NumberFormat.currency(
@@ -31,12 +32,15 @@ class NominalController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    var savedSantriId = box.read('santriId');
-    santriId.value = savedSantriId != null
-        ? int.tryParse(savedSantriId.toString()) ?? 0
-        : 0;
+    // var savedSantriId = box.read('santriId');
+    // santriId.value = savedSantriId != null
+    //     ? int.tryParse(savedSantriId.toString()) ?? 0
+    //     : 0;
 
-    print('Santri ID in NominalController: ${santriId.value}');
+    // print('Santri ID in NominalController: ${santriId.value}');
+    
+  nisn.value = box.read('nisn')?.toString() ?? '';
+
 
     ever(inputText, (val) {
       textController.value = TextEditingValue(
@@ -57,9 +61,9 @@ class NominalController extends GetxController {
     selectedNominal.value = amount;
   }
 
-  void setData(Kartu data) {
-    santriId.value = data.data.santri.id;
-  }
+  // void setData(Kartu data) {
+  //   santriId.value = data.data.santri.id;
+  // }
 
   void updateNominalFromText(String value) {
     String numeric = value.replaceAll(RegExp(r'[^0-9]'), '');
@@ -70,54 +74,54 @@ class NominalController extends GetxController {
     }
   }
 
-  Future topUpSaldo() async {
-    isloading.value = true;
-    final amount = selectedNominal.value;
+  // Future topUpSaldo() async {
+  //   isloading.value = true;
+  //   final amount = selectedNominal.value;
 
-    if (amount <= 0) {
-      Get.snackbar(
-        'Error',
-        'Pilih nominal yang valid',
-        backgroundColor: Colors.red,
-      );
-      return;
-    }
+  //   if (amount <= 0) {
+  //     Get.snackbar(
+  //       'Error',
+  //       'Pilih nominal yang valid',
+  //       backgroundColor: Colors.red,
+  //     );
+  //     return;
+  //   }
 
-    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+  //   final orderId = DateTime.now().millisecondsSinceEpoch.toString();
 
-    final body = {"santriId": santriId.value, "grossAmount": amount};
+  //   final body = {"santriId": santriId.value, "grossAmount": amount};
 
-    final urlTopup = Uri.parse("$url/midtrans/create-transaction");
+  //   final urlTopup = Uri.parse("$url/midtrans/create-transaction");
 
-    try {
-      final response = await http.post(
-        urlTopup,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
-      );
-      final data = jsonDecode(response.body);
+  //   try {
+  //     final response = await http.post(
+  //       urlTopup,
+  //       headers: {"Content-Type": "application/json"},
+  //       body: jsonEncode(body),
+  //     );
+  //     final data = jsonDecode(response.body);
 
-      if (response.statusCode == 201) {
-        final transaction = data['data'];
-        final redirectUrl = transaction['redirect_url'];
-        if (redirectUrl != null) {
-          Get.toNamed(Routes.MIDTRANS_PAYMENT, arguments: {"url": redirectUrl});
-        }
+  //     if (response.statusCode == 201) {
+  //       final transaction = data['data'];
+  //       final redirectUrl = transaction['redirect_url'];
+  //       if (redirectUrl != null) {
+  //         Get.toNamed(Routes.MIDTRANS_PAYMENT, arguments: {"url": redirectUrl});
+  //       }
 
-        Get.snackbar("Sukses", data['msg'] ?? "Transaksi berhasil di buat");
-      } else {
-        Get.snackbar("Error", data['msg'] ?? "Gagal top up");
-        print("Error : $data");
-        debugPrint("Error response: $data");
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Tidak dapat terhubung ke server");
-      print("error : $e");
-      debugPrint("Error response: $e");
-    } finally {
-      isloading.value = false;
-    }
-  }
+  //       Get.snackbar("Sukses", data['msg'] ?? "Transaksi berhasil di buat");
+  //     } else {
+  //       Get.snackbar("Error", data['msg'] ?? "Gagal top up");
+  //       print("Error : $data");
+  //       debugPrint("Error response: $data");
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar("Error", "Tidak dapat terhubung ke server");
+  //     print("error : $e");
+  //     debugPrint("Error response: $e");
+  //   } finally {
+  //     isloading.value = false;
+  //   }
+  // }
 
   // Future tarikTunai() async {
   //   final amount = selectedNominal.value;

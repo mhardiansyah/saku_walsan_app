@@ -15,6 +15,8 @@ class MethodPembayaranController extends GetxController {
   var tahun = ''.obs;
   var jenis = ''.obs;
   var total = 0.obs;
+  var nisn = ''.obs;
+  var nominalTopUp = 0.obs;
 
   @override
   void onInit() {
@@ -27,6 +29,8 @@ class MethodPembayaranController extends GetxController {
       tahun.value = args['tahun'] ?? '';
       jenis.value = args['jenis'] ?? '';
       total.value = args['total'] ?? 0;
+      nisn.value = args['nisn'] ?? '';
+      nominalTopUp.value = args['nominal'] ?? 0;
     }
 
     print("ARGUMENT MASUK:");
@@ -34,6 +38,8 @@ class MethodPembayaranController extends GetxController {
     print("Tahun: ${tahun.value}");
     print("Jenis: ${jenis.value}");
     print("Total: ${total.value}");
+    print("NISN: ${nisn.value}");
+    print("Nominal TopUp: ${nominalTopUp.value}");
   }
 
   final List<Map<String, String>> metodePembayaran = [
@@ -48,16 +54,30 @@ class MethodPembayaranController extends GetxController {
   }) async {
     try {
       final name = box.read('name') ?? 'Unknown User';
-      final nisn = box.read('nisn') ?? '';
+      // final nisn = box.read('nisn') ?? '';
+      final nisn = this.nisn.value;
 
       final customerNo = DateTime.now().millisecondsSinceEpoch.toString();
 
-      final body = {
+      final bool isTopUp = bulan.isEmpty;
+
+      final bodyTopUp = {
+        "customerNo": customerNo,
+        "virtualAccountName": name,
+        "nisn": nisn,
+        "totalAmount": {
+          "value": nominalTopUp.value.toStringAsFixed(2),
+          "currency": "IDR",
+        },
+        "virtualAccountTrxType": trxType,
+        "additionalInfo": {"channel": channel},
+      };
+
+      final bodySPP = {
         "customerNo": customerNo,
         "virtualAccountName": name,
         "nisn": nisn,
 
-        // 🟢 BULAN SEKARANG LIST, BUKAN STRING
         "bulan": bulan.toList(),
 
         "tahun": tahun.value,
@@ -70,7 +90,8 @@ class MethodPembayaranController extends GetxController {
         "additionalInfo": {"channel": channel},
       };
 
-      print(" REQUEST BODY WINPAY: $body");
+      final requestBody = isTopUp ? bodyTopUp : bodySPP;
+      print(" Creating WINPAY VA with body: $requestBody");
 
       final res = await http.post(
         Uri.parse("$url/payments/winpay/va"),
@@ -80,7 +101,7 @@ class MethodPembayaranController extends GetxController {
           "User-Agent": "PostmanRuntime/7.33.0",
           "Accept-Encoding": "identity", // <-- FIX VERCEL EMPTY BODY
         },
-        body: jsonEncode(body),
+        body: jsonEncode(requestBody),
       );
 
       print(" STATUS: ${res.statusCode}");
@@ -92,7 +113,17 @@ class MethodPembayaranController extends GetxController {
           return {"message": "Created but no content"};
         }
 
-        return jsonDecode(res.body);
+        final decoded = jsonDecode(res.body);
+
+        if (decoded["data"] == null ||
+            decoded["data"]["virtualAccountData"] == null) {
+          print("Response tidak berisi data VA yang diharapkan.");
+          return null;
+        }
+        final vaData = decoded["data"]["virtualAccountData"];
+        print(" Virtual Account Created: $vaData");
+
+        return vaData;
       }
 
       Get.snackbar(

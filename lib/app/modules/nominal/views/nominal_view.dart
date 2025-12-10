@@ -292,14 +292,30 @@ class NominalView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              onPressed: controller.isloading.value
-                  ? () {}
-                  : () async {
-                      controller.topUpSaldo();
-                      debugPrint(
-                        "Nominal dipilih: ${controller.selectedNominal.value}",
-                      );
-                    },
+              // onPressed: controller.isloading.value
+              //     ? () {}
+              //         controller.topUpSaldo();
+              //         debugPrint(
+              //           "Nominal dipilih: ${controller.selectedNominal.value}",
+              //         );
+              //       },
+              onPressed: () async {
+                final nominal = controller.selectedNominal.value;
+                if (nominal <= 0) {
+                  Get.snackbar("Error", "Pilih nominal yang valid");
+                  return;
+                }
+                Get.toNamed(
+                  Routes.METHOD_PEMBAYARAN,
+                  arguments: {
+                    "nominal": nominal,
+                    "nisn": controller.nisn.value,
+                  },
+                );
+                print(
+                  "Nominal dipilih: ${controller.selectedNominal.value} dan nisn: ${controller.nisn.value}",
+                );
+              },
               child: controller.isloading.value
                   ? const SizedBox(
                       width: 24,

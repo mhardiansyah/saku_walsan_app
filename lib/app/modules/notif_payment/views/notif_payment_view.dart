@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/notif_payment_controller.dart';
 
 class NotifPaymentView extends StatelessWidget {
@@ -23,13 +24,14 @@ class NotifPaymentView extends StatelessWidget {
           String message = '';
           String buttonText = '';
           String imagePath = '';
-          VoidCallback onPressed = () => Get.back();
+          VoidCallback onPressed = () =>
+              Get.offAllNamed(Routes.MAIN_NAVIGATION);
 
           switch (status) {
             case 'success':
               title = 'Pembayaran Berhasil!';
               message = 'Selamat! Pembayaran Anda telah diproses dengan sukses';
-              buttonText = 'Selanjutnya';
+              buttonText = 'Kembali ke Beranda';
               imagePath = 'assets/images/berhasil.png';
               break;
 

@@ -65,7 +65,7 @@ class HomeView extends GetView<HomeController> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
-            child: Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
@@ -123,16 +123,24 @@ class HomeView extends GetView<HomeController> {
                     mainAxisSpacing: 12,
                     childAspectRatio: itemWidth / itemHeight,
                     children: [
-                      Obx(
-                        () => _buildSummaryCard(
-                          "Total Transaksi",
-                          controller.jumlahTransaksi.value.toString(),
-                          Colors.green,
-                          "assets/icons/dolars.png",
-                          "",
-                          showBadge: false,
-                        ),
-                      ),
+                      Obx(() {
+                        return GestureDetector(
+                          onTap: () {
+                            Get.toNamed(
+                              Routes.WINPAY_HISTORY,
+                              // arguments: riwayatController.riwayatTransaksi,
+                            );
+                          },
+                          child: _buildSummaryCard(
+                            "Transaksi Pending",
+                            controller.jumlahTransaksi.value.toString(),
+                            Colors.yellow[800]!,
+                            "assets/icons/dolars.png",
+                            "",
+                            showBadge: false,
+                          ),
+                        );
+                      }),
 
                       Obx(
                         () => _buildSummaryCard(

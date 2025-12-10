@@ -114,6 +114,7 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                           print("Total : ${controller.total.value}");
                           print("trxType : ${controller.trxType}");
                           print("channel : ${controller.channel}");
+                          
 
                           // 3️⃣ JALANKAN API (TANPA MENUNGGU UI)
                           final result = await controller.createWinpayVa(
@@ -133,18 +134,21 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                             return;
                           }
 
-                          final vaData = result["data"]["virtualAccountData"];
+                          final vaData = result;
                           Get.offNamed(
                             Routes.PEMBAYARAN,
                             arguments: {
-                              "channel": controller
-                                  .channel, // ← dari method pembayaran
-                              "trxType":
-                                  controller.trxType, // ← sesuai pilihan user
+                              "channel": vaData["additionalInfo"]["channel"],
+
+                              "trxType": controller.trxType,
                               "va_number": vaData["virtualAccountNo"],
                               "va_name": vaData["virtualAccountName"],
                               "expired": vaData["expiredDate"],
                               "total": vaData["totalAmount"]["value"],
+
+                              "contractId":
+                                  vaData["additionalInfo"]["contractId"],
+                              "trxId": vaData["trxId"],
                             },
                           );
                         },

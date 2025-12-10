@@ -9,7 +9,7 @@ class WinpayHistoryView extends GetView<WinpayHistoryController> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(WinpayHistoryController());
+    // final controller = Get.put(WinpayHistoryController());
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -74,8 +74,7 @@ class WinpayHistoryView extends GetView<WinpayHistoryController> {
                     return InkWell(
                       borderRadius: BorderRadius.circular(15),
                       onTap: () {
-                        Get.to(() => const PembayaranView(),
-                            arguments: item);
+                        Get.to(() => const PembayaranView(), arguments: item);
                       },
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 20),
@@ -148,8 +147,9 @@ class WinpayHistoryView extends GetView<WinpayHistoryController> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        DateFormat("dd MMM yyyy")
-                                            .format(item["tanggal"]),
+                                        DateFormat(
+                                          "dd MMM yyyy",
+                                        ).format(item["tanggal"]),
                                         style: const TextStyle(
                                           color: Colors.grey,
                                           fontSize: 13,
