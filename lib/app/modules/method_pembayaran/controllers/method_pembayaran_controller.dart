@@ -65,6 +65,7 @@ class MethodPembayaranController extends GetxController {
         "customerNo": customerNo,
         "virtualAccountName": name,
         "nisn": nisn,
+        "jenis": jenis.value,
         "totalAmount": {
           "value": nominalTopUp.value.toStringAsFixed(2),
           "currency": "IDR",
@@ -99,7 +100,7 @@ class MethodPembayaranController extends GetxController {
           "Content-Type": "application/json",
           "Accept": "application/json",
           "User-Agent": "PostmanRuntime/7.33.0",
-          "Accept-Encoding": "identity", // <-- FIX VERCEL EMPTY BODY
+          "Accept-Encoding": "identity",
         },
         body: jsonEncode(requestBody),
       );

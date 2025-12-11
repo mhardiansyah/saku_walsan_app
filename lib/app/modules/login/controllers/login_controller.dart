@@ -34,17 +34,17 @@ class LoginController extends GetxController {
   bool validateForm() {
     bool isValid = true;
 
-    // Reset error messages
     usernameError.value = null;
     passwordError.value = null;
 
-    if (username.value.isEmpty) {
-      usernameError.value = 'Email tidak boleh kosong';
-      isValid = false;
-    } else if (!GetUtils.isUsername(username.value)) {
-      usernameError.value = 'Format username tidak valid';
+    if (username.value.trim().isEmpty) {
+      usernameError.value = 'Username tidak boleh kosong';
       isValid = false;
     }
+    //  else if (!GetUtils.isUsername(username.value)) {
+    //   usernameError.value = 'Format username tidak valid';
+    //   isValid = false;
+    // }
     if (password.value.isEmpty) {
       passwordError.value = 'Password tidak boleh kosong';
       isValid = false;

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,7 @@ class PembayaranController extends GetxController {
   var total = "".obs;
   var contractId = "".obs;
   var trxId = "".obs;
+  var countdownText = "00:00:00".obs;
 
   var url = dotenv.env['base_url'];
 
@@ -32,8 +34,35 @@ class PembayaranController extends GetxController {
     contractId.value = args["contractId"] ?? "";
     trxId.value = args["trxId"] ?? "";
 
+    startCountdown();
+
     print("DATA MASUK KE PEMBAYARAN VIEW:");
     print(args);
+  }
+
+  void startCountdown() async {
+    if (expired.value == "-") return;
+
+    try {
+      DateTime exp = DateTime.parse(expired.value);
+
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        final now = DateTime.now();
+        final diff = exp.difference(now);
+
+        if (diff.inSeconds <= 0) {
+          countdownText.value = "Expired";
+          timer.cancel();
+          return;
+        }
+        final hours = diff.inHours.toString().padLeft(2, '0');
+        final minutes = (diff.inMinutes % 60).toString().padLeft(2, '0');
+        final seconds = (diff.inSeconds % 60).toString().padLeft(2, '0');
+        countdownText.value = "$hours:$minutes:$seconds";
+      });
+    } catch (e) {
+      print("ERROR START COUNTDOWN: $e");
+    }
   }
 
   String getLogoByChannel() {
@@ -43,7 +72,7 @@ class PembayaranController extends GetxController {
     if (bank.contains("BRI")) return "assets/icons/BRI.png";
     if (bank.contains("MUAMALAT")) return "assets/icons/muamalat.png";
 
-    return "assets/icons/default_bank.png"; 
+    return "assets/icons/BSI.png";
   }
 
   void refreshData() async {

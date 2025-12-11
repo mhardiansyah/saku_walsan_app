@@ -376,10 +376,16 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
                           children: [
                             CircleAvatar(
                               radius: 28,
-                              backgroundColor: Colors.grey[200],
-                              child: const Icon(
-                                Icons.person,
-                                color: Color.fromRGBO(158, 158, 158, 1),
+                              backgroundColor: getRandomColor(
+                                transaksi.santriId ?? 0,
+                              ),
+                              child: Text(
+                                getInitials(nama),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -465,5 +471,30 @@ class RiwayatTransaksiView extends GetView<RiwayatTransaksiController> {
       decimalDigits: 0,
     );
     return formatCurrency.format(amount);
+  }
+
+  String getInitials(String name) {
+    if (name.isEmpty) return "";
+    List<String> parts = name.trim().split(" ");
+    if (parts.length == 1) {
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    } else if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return "";
+  }
+
+  Color getRandomColor(int seed) {
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.red,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.brown,
+      Colors.indigo,
+    ];
+    return colors[seed % colors.length];
   }
 }

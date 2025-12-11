@@ -37,85 +37,102 @@ class DetailRiwayatTransaksiView
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Foto + Status
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.grey[200],
-                  child: const Icon(Icons.person, size: 40, color: Colors.grey),
+                  backgroundColor: getRandomColor(data.santriId ?? 0),
+
+                  child: data.santriId == null
+                      ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                      : Text(
+                          getInitials(data.santri.name),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
-                const SizedBox(height: 8),
+
+                const SizedBox(height: 10),
+
+                // BADGE STATUS — mirip desain
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
+                    horizontal: 22,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
                     color: data.status == "hutang"
-                        ? Colors.red[100]
-                        : Colors.green[100],
-                    borderRadius: BorderRadius.circular(20),
+                        ? Colors.red.shade100
+                        : Colors.green.shade200,
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
                     data.status == "hutang" ? "Hutang" : "Lunas",
                     style: TextStyle(
                       color: data.status == "hutang"
                           ? Colors.red
-                          : Colors.green[700],
-                      fontWeight: FontWeight.bold,
+                          : Colors.green.shade800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
 
-                // Detail Info
-                _buildRow("Nama:", data.santri.name),
-                _buildRow(
+                const SizedBox(height: 20),
+
+                // DETAIL
+                _row("Nama:", data.santri.name),
+                _row(
                   "Tanggal Transaksi:",
                   DateFormat("dd MMMM yyyy", "id_ID").format(data.createdAt),
                 ),
-                _buildRow(
+                _row(
                   "Waktu Beli:",
                   DateFormat("HH.mm", "id_ID").format(data.createdAt) + " WIB",
                 ),
-                _buildRow("Jumlah Bayar:", formatRupiah(data.totalAmount)),
+                _row("Jumlah Bayar:", formatRupiah(data.totalAmount)),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 18),
+
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Barang yang dibeli:",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                 ),
                 const SizedBox(height: 6),
 
-                // List Items
-                // List Items
+                // LIST BARANG
                 ...data.items.map(
                   (item) => Padding(
-                    padding: const EdgeInsets.only(left: 12, bottom: 4),
+                    padding: const EdgeInsets.only(left: 8, bottom: 4),
                     child: Row(
                       children: [
-                        const Text("• "),
+                        const Text("•  "),
                         Expanded(
                           child: Text(
                             "${controller.getProductName(item.itemId)} x${item.quantity}",
-                            style: const TextStyle(fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                       ],
@@ -123,8 +140,8 @@ class DetailRiwayatTransaksiView
                   ),
                 ),
 
-                const SizedBox(height: 8),
-                _buildRow("Jumlah yang dibeli:", data.items.length.toString()),
+                const SizedBox(height: 14),
+                _row("Jumlah yang dibeli:", data.items.length.toString()),
               ],
             ),
           ),
@@ -133,7 +150,7 @@ class DetailRiwayatTransaksiView
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _row(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -141,26 +158,20 @@ class DetailRiwayatTransaksiView
         children: [
           Expanded(
             flex: 5,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                label,
-                style: const TextStyle(fontSize: 15, color: Colors.black87),
-              ),
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 15, color: Colors.black87),
             ),
           ),
           Expanded(
             flex: 5,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                value,
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 183, 101, 101),
-                ),
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
               ),
             ),
           ),
@@ -168,15 +179,37 @@ class DetailRiwayatTransaksiView
       ),
     );
   }
-  
-  
 
   String formatRupiah(int amount) {
-    final formatCurrency = NumberFormat.currency(
+    return NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
       decimalDigits: 0,
-    );
-    return formatCurrency.format(amount);
+    ).format(amount);
+  }
+
+  String getInitials(String name) {
+    if (name.isEmpty) return "";
+    List<String> parts = name.trim().split(" ");
+    if (parts.length == 1) {
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    } else if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return "";
+  }
+
+  Color getRandomColor(int seed) {
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.red,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.brown,
+      Colors.indigo,
+    ];
+    return colors[seed % colors.length];
   }
 }

@@ -40,6 +40,9 @@ class NotifPaymentView extends StatelessWidget {
               message = 'Maaf, Transaksi Anda tidak dapat diproses saat ini';
               buttonText = 'Coba Lagi';
               imagePath = 'assets/images/gagal.png';
+              onPressed = () {
+                Get.offAllNamed(Routes.METHOD_PEMBAYARAN);
+              };
               break;
 
             case 'topup_failed':
@@ -53,7 +56,7 @@ class NotifPaymentView extends StatelessWidget {
               title = 'Memproses...';
               message = 'Harap Sabar, Kami sedang memproses pembayaran anda';
               buttonText = '';
-              imagePath = ''; // kosong karena pakai Lottie
+              imagePath = '';
               onPressed = () {};
               break;
 

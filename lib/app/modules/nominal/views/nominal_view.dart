@@ -310,6 +310,7 @@ class NominalView extends StatelessWidget {
                   arguments: {
                     "nominal": nominal,
                     "nisn": controller.nisn.value,
+                    "jenis": "uangsaku",
                   },
                 );
                 print(

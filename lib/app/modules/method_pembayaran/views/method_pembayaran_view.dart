@@ -41,43 +41,86 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                 return GestureDetector(
                   onTap: () => controller.pilihMetode(index),
                   child: Container(
-                    height: 80,
-                    margin: const EdgeInsets.only(bottom: 15),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    height: 90, // dibuat lebih tinggi biar mirip desain
+                    margin: const EdgeInsets.only(bottom: 18),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.shade300,
-                          blurRadius: 5,
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: Row(
                       children: [
-                        Image.asset(metode["logo"]!, height: 45),
+                        // LOGO
+                        Container(
+                          width: 50,
+                          height: 50,
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+                          child: Image.asset(
+                            metode["logo"]!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+
                         const SizedBox(width: 20),
+
+                        // NAMA BANK
                         Expanded(
                           child: Text(
                             metode["nama"]!,
                             style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
 
+                        // RADIO BUTTON
                         Obx(() {
                           final isSelected =
                               controller.selectedMethod.value == index;
-                          return Icon(
-                            isSelected
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_unchecked,
-                            size: 28,
-                            color: isSelected ? Colors.orange : Colors.grey,
+
+                          return Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected ? Colors.orange : Colors.grey,
+                                width: 2,
+                              ),
+                            ),
+                            child: isSelected
+                                ? Center(
+                                    child: Container(
+                                      width: 13,
+                                      height: 13,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.orange,
+                                      ),
+                                    ),
+                                  )
+                                : null,
                           );
                         }),
                       ],
@@ -97,13 +140,11 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                   onPressed: controller.selectedMethod.value == -1
                       ? null
                       : () async {
-                          // 1️⃣ ARAHKAN LANGSUNG KE HALAMAN PROCESSING
                           Get.toNamed(
                             Routes.NOTIF_PAYMENT,
                             arguments: {"status": "Pending"},
                           );
 
-                          // 2️⃣ CETAK LOG DULU
                           print("MULAI PROSES CREATE WINPAY VA...");
                           print(
                             "Metode dipilih: ${controller.metodePembayaran[controller.selectedMethod.value]["nama"]}",
@@ -114,9 +155,7 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                           print("Total : ${controller.total.value}");
                           print("trxType : ${controller.trxType}");
                           print("channel : ${controller.channel}");
-                          
 
-                          // 3️⃣ JALANKAN API (TANPA MENUNGGU UI)
                           final result = await controller.createWinpayVa(
                             trxType: controller.trxType,
                             channel: controller.channel,
@@ -126,10 +165,9 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                           print(result);
 
                           if (result == null) {
-                            // GAGAL CREATE VA
                             Get.offAllNamed(
                               Routes.NOTIF_PAYMENT,
-                              arguments: {"status": "Failed"},
+                              arguments: {"status": "failed"},
                             );
                             return;
                           }
@@ -154,13 +192,16 @@ class MethodPembayaranView extends GetView<MethodPembayaranController> {
                         },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF22AD61),
-                    disabledBackgroundColor: Colors.grey.shade300,
+                    backgroundColor: controller.selectedMethod.value == -1
+                        ? Colors.grey.shade300
+                        : const Color(0xFF22AD61),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(40),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
+
                   child: const Text(
                     "Bayar",
                     style: TextStyle(fontSize: 16, color: Colors.white),
