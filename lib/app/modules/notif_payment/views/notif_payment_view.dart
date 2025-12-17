@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:saku_walsan_app/app/modules/home/controllers/home_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 import '../controllers/notif_payment_controller.dart';
 
@@ -10,6 +11,8 @@ class NotifPaymentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final NotifPaymentController controller = Get.put(NotifPaymentController());
+
+    final homeController = Get.find<HomeController>();
 
     final args = Get.arguments ?? {};
     controller.setStatus(args['status'] ?? 'success');
@@ -24,8 +27,10 @@ class NotifPaymentView extends StatelessWidget {
           String message = '';
           String buttonText = '';
           String imagePath = '';
-          VoidCallback onPressed = () =>
-              Get.offAllNamed(Routes.MAIN_NAVIGATION);
+          VoidCallback onPressed = () async {
+            await homeController.rehreshAll();
+            Get.offAllNamed(Routes.MAIN_NAVIGATION);
+          };
 
           switch (status) {
             case 'success':

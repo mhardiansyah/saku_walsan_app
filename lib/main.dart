@@ -7,6 +7,7 @@ import 'package:saku_walsan_app/app/modules/home/controllers/home_controller.dar
 import 'package:saku_walsan_app/app/modules/spp/controllers/spp_controller.dart';
 import 'app/routes/app_pages.dart';
 
+
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');

@@ -18,6 +18,9 @@ class SppController extends GetxController {
 
   var monthList = <String>[].obs;
   var selectedMonths = <String>[].obs;
+  var selectedOther = Rxn<OltherPayment>();
+  var tempSelectedOther = Rxn<OltherPayment>();
+  var selectedOtherPayment = Rxn<OltherPayment>();
 
   var selectedSpp = <SppPayment>[].obs;
 
@@ -57,40 +60,61 @@ class SppController extends GetxController {
   }
 
   bool isSequentialAndNoSkip(List<String> selected) {
-  final urutanBulan = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
+    if (selected.isEmpty) return true;
 
-  if (selected.isEmpty) return true;
+    const bulanOrder = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
 
-  final sorted = [...selected]
-    ..sort((a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)));
+    // convert "Bulan|Tahun" → map yang TYPED
+    final parsed = selected.map((e) {
+      final split = e.split('|');
+      return {'bulan': split[0] as String, 'tahun': int.parse(split[1])};
+    }).toList();
 
-  // ambil index bulan paling kecil dan paling besar
-  final firstIndex = urutanBulan.indexOf(sorted.first);
-  final lastIndex = urutanBulan.indexOf(sorted.last);
+    // sort by tahun → bulan
+    parsed.sort((a, b) {
+      final yearCompare = (a['tahun'] as int).compareTo(b['tahun'] as int);
+      if (yearCompare != 0) return yearCompare;
 
-  // semua bulan di range harus terpilih
-  for (int i = firstIndex; i <= lastIndex; i++) {
-    if (!sorted.contains(urutanBulan[i])) {
-      return false;
+      return bulanOrder
+          .indexOf(a['bulan'] as String)
+          .compareTo(bulanOrder.indexOf(b['bulan'] as String));
+    });
+
+    // validasi berurutan
+    for (int i = 1; i < parsed.length; i++) {
+      final prev = parsed[i - 1];
+      final curr = parsed[i];
+
+      final prevMonthIdx = bulanOrder.indexOf(prev['bulan'] as String);
+      final currMonthIdx = bulanOrder.indexOf(curr['bulan'] as String);
+
+      final prevYear = prev['tahun'] as int;
+      final currYear = curr['tahun'] as int;
+
+      final valid =
+          // tahun sama → bulan harus lanjut
+          (currYear == prevYear && currMonthIdx == prevMonthIdx + 1) ||
+          // desember → januari tahun depan
+          (currYear == prevYear + 1 && prevMonthIdx == 11 && currMonthIdx == 0);
+
+      if (!valid) return false;
     }
+
+    return true;
   }
-
-  return true;
-}
-
 
   Future<void> fetchSpp(String nisn) async {
     try {
@@ -149,16 +173,41 @@ class SppController extends GetxController {
         "Desember",
       ];
 
-      final bulanAPI = spp.map((e) => e.month).toSet().toList()
-        ..sort(
-          (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
-        );
-      monthList.assignAll(bulanAPI);
+      final monthYearList = spp
+          .map((e) => "${e.month}|${e.year}")
+          .toSet()
+          .toList();
 
-      paidCount.value = spp.where((e) => e.status != Status.BELUM_LUNAS).length;
-      unpaidCount.value = spp
-          .where((e) => e.status == Status.BELUM_LUNAS)
-          .length;
+      monthYearList.sort((a, b) {
+        final aSplit = a.split('|');
+        final bSplit = b.split('|');
+
+        final yearCompare = int.parse(
+          aSplit[1],
+        ).compareTo(int.parse(bSplit[1]));
+        if (yearCompare != 0) return yearCompare;
+
+        final urutanBulan = [
+          "Januari",
+          "Februari",
+          "Maret",
+          "April",
+          "Mei",
+          "Juni",
+          "Juli",
+          "Agustus",
+          "September",
+          "Oktober",
+          "November",
+          "Desember",
+        ];
+
+        return urutanBulan
+            .indexOf(aSplit[0])
+            .compareTo(urutanBulan.indexOf(bSplit[0]));
+      });
+
+      monthList.assignAll(monthYearList);
     } catch (e) {
       print(" ERROR fetchSpp: $e");
 
@@ -207,20 +256,37 @@ class SppController extends GetxController {
   void summarySelectedSpp() {
     selectedSpp.clear();
 
-    if (selectedTahun.value.isEmpty) return;
-
-    for (var month in selectedMonths) {
-      final match = sppList.where(
-        (e) =>
-            e.month.toLowerCase() == month.toLowerCase() &&
-            e.year == selectedTahun.value,
-      );
-
-      selectedSpp.addAll(match);
+    if (selectedMonths.isEmpty) {
+      totalNominal.value = 0;
+      totalPembayaran.value = totalAdmin.value;
+      return;
     }
 
-    totalNominal.value = selectedSpp.fold(0, (sum, item) => sum + item.nominal);
+    for (final my in selectedMonths) {
+      final parts = my.split('|');
+      final month = parts[0];
+      final year = parts.length > 1 ? parts[1] : selectedTahun.value;
 
+      selectedSpp.addAll(
+        sppList.where((e) => e.month == month && e.year == year),
+      );
+    }
+
+    // Optional: buat display
+    selectedTahun.value = selectedMonths.first.split('|')[1];
+
+    totalNominal.value = selectedSpp.fold(0, (sum, item) => sum + item.nominal);
+    totalPembayaran.value = totalNominal.value + totalAdmin.value;
+  }
+
+  void summarySelectedOther() {
+    if (selectedOtherPayment.value == null) {
+      totalNominal.value = 0;
+      totalPembayaran.value = totalAdmin.value;
+      return;
+    }
+
+    totalNominal.value = selectedOtherPayment.value!.amount;
     totalPembayaran.value = totalNominal.value + totalAdmin.value;
   }
 
@@ -263,11 +329,31 @@ class SppController extends GetxController {
 
   void goNext() {
     if (step.value == 1 && selectedJenis.value.isNotEmpty) {
+      // Jika SPP -> langsung loncat ke pilih bulan (step 3)
+      if (selectedJenis.value == "SPP") {
+        step.value = 3;
+        return;
+      }
+
+      // Jika OTHER -> langsung ke step 4 (tampilkan pilihan pembayaran OTHER)
+      if (selectedJenis.value == "OTHER") {
+        step.value = 4;
+        return;
+      }
+
       step.value = 2;
     } else if (step.value == 2 && selectedTahun.value.isNotEmpty) {
       step.value = 3;
     } else if (step.value == 3 && selectedMonths.isNotEmpty) {
       step.value = 4;
+    }
+  }
+
+  String getYearForMonth(String month) {
+    try {
+      return sppList.firstWhere((e) => e.month == month).year;
+    } catch (_) {
+      return "-";
     }
   }
 
