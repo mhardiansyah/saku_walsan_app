@@ -8,360 +8,222 @@ import 'package:intl/intl.dart';
 import 'package:saku_walsan_app/app/core/models/spp_models.dart';
 
 class SppController extends GetxController {
+  /// STEP
+  /// 1 = pilih jenis
+  /// 2 = pilih detail (bulan / other)
+  /// 3 = ringkasan
   var step = 1.obs;
 
+  /// JENIS
   var jenisList = <String>[].obs;
-  var selectedJenis = ''.obs;
+  var selectedJenis = ''.obs; // SPP | OTHER
 
-  var tahunList = <String>[].obs;
-  var selectedTahun = ''.obs;
-
-  var monthList = <String>[].obs;
-  var selectedMonths = <String>[].obs;
-  var selectedOther = Rxn<OltherPayment>();
-  var tempSelectedOther = Rxn<OltherPayment>();
-  var selectedOtherPayment = Rxn<OltherPayment>();
-
+  /// SPP
+  var sppList = <SppPayment>[].obs;
+  var selectedMonths = <String>[].obs; // Januari|2025
   var selectedSpp = <SppPayment>[].obs;
-
-  var totalNominal = 0.obs;
-  var totalAdmin = 5000.obs;
-  var totalPembayaran = 0.obs;
   var tempSelectedMonths = <String>[].obs;
 
-  var sppList = <SppPayment>[].obs;
-  var otherList = <OltherPayment>[].obs;
-
-  var cicilanControllers = <String, TextEditingController>{}.obs;
-
-  var isLoading = false.obs;
-
+  //pembayaran
   var paidCount = 0.obs;
   var unpaidCount = 0.obs;
+  final cicilanControllers = <String, TextEditingController>{};
+
+  var totalAdmin = 5000.obs;
+
+  /// OTHER
+  var otherList = <OltherPayment>[].obs;
+  var selectedOtherPayment = Rxn<OltherPayment>();
+  var tempSelectedOther = Rxn<OltherPayment>();
+
+  /// TOTAL
+  var totalNominal = 0.obs;
+  var adminFee = 5000;
+  var totalPembayaran = 0.obs;
+
+  /// STATE
+  var isLoading = false.obs;
 
   final box = GetStorage();
-  var url = dotenv.env['base_url'];
+  final url = dotenv.env['base_url'];
 
   @override
   void onInit() {
     super.onInit();
-
-    final nisn = box.read('nisn') ?? "";
-    if (nisn.isNotEmpty) {
-      fetchSpp(nisn);
-    } else {
-      Get.snackbar(
-        "Error",
-        "NISN tidak ditemukan. Silakan login ulang.",
-        colorText: Colors.white,
-        backgroundColor: Colors.red,
-      );
-    }
+    final nisn = box.read('nisn');
+    if (nisn != null) fetchSpp(nisn);
   }
 
-  bool isSequentialAndNoSkip(List<String> selected) {
-    if (selected.isEmpty) return true;
-
-    const bulanOrder = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    // convert "Bulan|Tahun" → map yang TYPED
-    final parsed = selected.map((e) {
-      final split = e.split('|');
-      return {'bulan': split[0] as String, 'tahun': int.parse(split[1])};
-    }).toList();
-
-    // sort by tahun → bulan
-    parsed.sort((a, b) {
-      final yearCompare = (a['tahun'] as int).compareTo(b['tahun'] as int);
-      if (yearCompare != 0) return yearCompare;
-
-      return bulanOrder
-          .indexOf(a['bulan'] as String)
-          .compareTo(bulanOrder.indexOf(b['bulan'] as String));
-    });
-
-    // validasi berurutan
-    for (int i = 1; i < parsed.length; i++) {
-      final prev = parsed[i - 1];
-      final curr = parsed[i];
-
-      final prevMonthIdx = bulanOrder.indexOf(prev['bulan'] as String);
-      final currMonthIdx = bulanOrder.indexOf(curr['bulan'] as String);
-
-      final prevYear = prev['tahun'] as int;
-      final currYear = curr['tahun'] as int;
-
-      final valid =
-          // tahun sama → bulan harus lanjut
-          (currYear == prevYear && currMonthIdx == prevMonthIdx + 1) ||
-          // desember → januari tahun depan
-          (currYear == prevYear + 1 && prevMonthIdx == 11 && currMonthIdx == 0);
-
-      if (!valid) return false;
-    }
-
-    return true;
-  }
-
+  /// ================= FETCH =================
   Future<void> fetchSpp(String nisn) async {
     try {
       isLoading.value = true;
+      final res = await http.get(Uri.parse("$url/santri/tagihan/$nisn"));
+      print("res: $res");
 
-      final uri = Uri.parse("$url/santri/tagihan/$nisn");
-      print(" Requesting API: $uri");
-
-      final res = await http.get(uri);
-
-      print(" Status Code: ${res.statusCode}");
-      print(" Response Body: ${res.body}");
-
-      if (res.statusCode != 200) {
-        Get.snackbar(
-          "Error",
-          "Gagal memuat data (${res.statusCode})",
-          colorText: Colors.white,
-          backgroundColor: Colors.red,
-        );
-        return;
-      }
+      if (res.statusCode != 200) return;
 
       final decoded = jsonDecode(res.body);
-      final Spp response = Spp.fromJson(decoded);
+      final response = Spp.fromJson(decoded);
+      print("response : $response");
+      print("response data : ${response.data.data.sppPayment}");
+      print("response other data : ${response.data.data.oltherPayments}");
 
-      final spp = response.data.data.sppPayment;
-      sppList.assignAll(spp);
-
-      final other = response.data.data.oltherPayments;
-      otherList.assignAll(other);
-
-      print(" Jumlah SPP dari API: ${spp.length}");
+      sppList.assignAll(response.data.data.sppPayment);
+      otherList.assignAll(response.data.data.oltherPayments);
 
       final jenis = <String>[];
-      if (spp.isNotEmpty) jenis.add("SPP");
-      if (other.isNotEmpty) jenis.add("OTHER");
+      if (sppList.isNotEmpty) jenis.add("SPP");
+      if (otherList.isNotEmpty) jenis.add("OTHER");
       jenisList.assignAll(jenis);
-
-      final tahunAPI = spp.map((e) => e.year).toSet().toList()
-        ..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
-      tahunList.assignAll(tahunAPI);
-
-      final urutanBulan = [
-        "Januari",
-        "Februari",
-        "Maret",
-        "April",
-        "Mei",
-        "Juni",
-        "Juli",
-        "Agustus",
-        "September",
-        "Oktober",
-        "November",
-        "Desember",
-      ];
-
-      final monthYearList = spp
-          .map((e) => "${e.month}|${e.year}")
-          .toSet()
-          .toList();
-
-      monthYearList.sort((a, b) {
-        final aSplit = a.split('|');
-        final bSplit = b.split('|');
-
-        final yearCompare = int.parse(
-          aSplit[1],
-        ).compareTo(int.parse(bSplit[1]));
-        if (yearCompare != 0) return yearCompare;
-
-        final urutanBulan = [
-          "Januari",
-          "Februari",
-          "Maret",
-          "April",
-          "Mei",
-          "Juni",
-          "Juli",
-          "Agustus",
-          "September",
-          "Oktober",
-          "November",
-          "Desember",
-        ];
-
-        return urutanBulan
-            .indexOf(aSplit[0])
-            .compareTo(urutanBulan.indexOf(bSplit[0]));
-      });
-
-      monthList.assignAll(monthYearList);
-    } catch (e) {
-      print(" ERROR fetchSpp: $e");
-
-      Get.snackbar(
-        "Error",
-        "Terjadi kesalahan: $e",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     } finally {
       isLoading.value = false;
     }
   }
 
-  void selectYear(String tahun) {
-    selectedTahun.value = tahun;
+  /// ================= STEP 1 =================
+  void selectJenis(String jenis) {
+    selectedJenis.value = jenis;
 
-    final urutanBulan = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
+    // reset
+    selectedMonths.clear();
+    selectedOtherPayment.value = null;
+    selectedSpp.clear();
+    totalNominal.value = 0;
+    totalPembayaran.value = 0;
 
-    final bulan =
-        sppList
-            .where((e) => e.year == tahun)
-            .map((e) => e.month)
-            .toSet()
-            .toList()
-          ..sort(
-            (a, b) => urutanBulan.indexOf(a).compareTo(urutanBulan.indexOf(b)),
-          );
-
-    monthList.assignAll(bulan);
+    step.value = 2;
   }
 
-  void summarySelectedSpp() {
+  /// ================= SPP =================
+  void toggleMonth(String monthYear) {
+    if (selectedMonths.contains(monthYear)) {
+      selectedMonths.remove(monthYear);
+    } else {
+      selectedMonths.add(monthYear);
+    }
+  }
+
+  void buildSppSummary() {
     selectedSpp.clear();
 
-    if (selectedMonths.isEmpty) {
-      totalNominal.value = 0;
-      totalPembayaran.value = totalAdmin.value;
-      return;
-    }
-
     for (final my in selectedMonths) {
-      final parts = my.split('|');
-      final month = parts[0];
-      final year = parts.length > 1 ? parts[1] : selectedTahun.value;
+      final split = my.split('|');
+      final month = split[0];
+      final year = split[1];
 
       selectedSpp.addAll(
         sppList.where((e) => e.month == month && e.year == year),
       );
     }
 
-    // Optional: buat display
-    selectedTahun.value = selectedMonths.first.split('|')[1];
+    totalNominal.value = selectedSpp.fold(0, (sum, e) => sum + e.nominal);
+    totalPembayaran.value = totalNominal.value + adminFee;
 
-    totalNominal.value = selectedSpp.fold(0, (sum, item) => sum + item.nominal);
-    totalPembayaran.value = totalNominal.value + totalAdmin.value;
+    step.value = 3;
   }
 
-  void summarySelectedOther() {
-    if (selectedOtherPayment.value == null) {
-      totalNominal.value = 0;
-      totalPembayaran.value = totalAdmin.value;
-      return;
+  /// ================= OTHER =================
+  void selectOther(OltherPayment other) {
+    selectedOtherPayment.value = other;
+
+    totalNominal.value = other.amount;
+    totalPembayaran.value = totalNominal.value + adminFee;
+
+    step.value = 3;
+  }
+
+  /// ================= PAYMENT ITEMS =================
+  List<Map<String, dynamic>> get paymentItems {
+    if (selectedJenis.value == "SPP") {
+      return selectedSpp
+          .map(
+            (e) => {
+              "type": "SPP",
+              "id": e.id,
+              "month": e.month,
+              "year": e.year,
+              "nominal": e.nominal,
+            },
+          )
+          .toList();
     }
 
-    totalNominal.value = selectedOtherPayment.value!.amount;
-    totalPembayaran.value = totalNominal.value + totalAdmin.value;
-  }
-
-  String monthName(String input) {
-    final bulanID = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    if (bulanID.contains(input)) return input;
-
-    final m = int.tryParse(input) ?? 1;
-    return DateFormat.MMMM('id_ID').format(DateTime(0, m));
-  }
-
-  List<SppPayment> get filteredSpp {
-    return sppList.where((item) {
-      final matchJenis =
-          selectedJenis.value.isEmpty || selectedJenis.value == "SPP";
-
-      final matchTahun =
-          selectedTahun.value.isEmpty || selectedTahun.value == item.year;
-
-      final matchMonth =
-          selectedMonths.isEmpty || selectedMonths.contains(item.month);
-
-      return matchJenis && matchTahun && matchMonth;
-    }).toList();
-  }
-
-  void goNext() {
-    if (step.value == 1 && selectedJenis.value.isNotEmpty) {
-      // Jika SPP -> langsung loncat ke pilih bulan (step 3)
-      if (selectedJenis.value == "SPP") {
-        step.value = 3;
-        return;
-      }
-
-      // Jika OTHER -> langsung ke step 4 (tampilkan pilihan pembayaran OTHER)
-      if (selectedJenis.value == "OTHER") {
-        step.value = 4;
-        return;
-      }
-
-      step.value = 2;
-    } else if (step.value == 2 && selectedTahun.value.isNotEmpty) {
-      step.value = 3;
-    } else if (step.value == 3 && selectedMonths.isNotEmpty) {
-      step.value = 4;
+    if (selectedJenis.value == "OTHER" && selectedOtherPayment.value != null) {
+      final o = selectedOtherPayment.value!;
+      return [
+        {"type": "OTHER", "id": o.id, "name": o.type.name, "nominal": o.amount},
+      ];
     }
+
+    return [];
   }
 
-  String getYearForMonth(String month) {
-    try {
-      return sppList.firstWhere((e) => e.month == month).year;
-    } catch (_) {
-      return "-";
+  List<String> get monthList {
+    return sppList.map((e) => "${e.month}|${e.year}").toSet().toList();
+  }
+
+  String monthName(String month) {
+    const bulan = {
+      "Januari": "Januari",
+      "Februari": "Februari",
+      "Maret": "Maret",
+      "April": "April",
+      "Mei": "Mei",
+      "Juni": "Juni",
+      "Juli": "Juli",
+      "Agustus": "Agustus",
+      "September": "September",
+      "Oktober": "Oktober",
+      "November": "November",
+      "Desember": "Desember",
+    };
+
+    return bulan[month] ?? month;
+  }
+
+  int monthToNumber(String month) {
+    const bulan = {
+      "Januari": 1,
+      "Februari": 2,
+      "Maret": 3,
+      "April": 4,
+      "Mei": 5,
+      "Juni": 6,
+      "Juli": 7,
+      "Agustus": 8,
+      "September": 9,
+      "Oktober": 10,
+      "November": 11,
+      "Desember": 12,
+    };
+
+    return bulan[month] ?? 1;
+  }
+
+  bool isSequentialAndNoSkip(List<String> list) {
+    if (list.isEmpty) return true;
+
+    final parsed = list.map((e) {
+      final s = e.split('|');
+      return DateTime(int.parse(s[1]), monthToNumber(s[0]));
+    }).toList()..sort();
+
+    for (int i = 1; i < parsed.length; i++) {
+      final prev = parsed[i - 1];
+      final curr = parsed[i];
+      if (curr.difference(prev).inDays > 31) return false;
     }
+    return true;
   }
 
-  void resetSelection() {
+  void resetAll() {
     step.value = 1;
-    selectedJenis.value = "";
-    selectedTahun.value = "";
+    selectedJenis.value = '';
     selectedMonths.clear();
-    cicilanControllers.clear();
+    selectedOtherPayment.value = null;
+    selectedSpp.clear();
+    totalNominal.value = 0;
+    totalPembayaran.value = 0;
   }
 }
