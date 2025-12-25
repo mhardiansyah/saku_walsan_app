@@ -20,14 +20,21 @@ class SppController extends GetxController {
 
   /// SPP
   var sppList = <SppPayment>[].obs;
-  var selectedMonths = <String>[].obs; // Januari|2025
+  var selectedMonths = <String>[].obs;
   var selectedSpp = <SppPayment>[].obs;
   var tempSelectedMonths = <String>[].obs;
+  RxBool autoOpenMonthPicker = false.obs;
+  RxBool isMonthDialogOpen = false.obs;
 
   //pembayaran
   var paidCount = 0.obs;
   var unpaidCount = 0.obs;
   final cicilanControllers = <String, TextEditingController>{};
+  var paymentItemsCart = <Map<String, dynamic>>[].obs;
+  final sppPaidMap = <String, int>{}.obs;
+
+  /// SIMPAN NOMINAL ASLI SPP (ANTI HILANG)
+  final sppOriginalNominal = <String, int>{}.obs;
 
   var totalAdmin = 5000.obs;
 
@@ -52,6 +59,19 @@ class SppController extends GetxController {
     super.onInit();
     final nisn = box.read('nisn');
     if (nisn != null) fetchSpp(nisn);
+    ever<String>(selectedJenis, (jenis) {
+      if (jenis == "SPP" && step.value >= 3) {
+        // delay dikit biar UI gak sempet render
+        Future.microtask(() {
+          Get.dialog(
+            Builder(
+              builder: (context) =>
+                  const SizedBox(), // dummy, dialog dipanggil dari view
+            ),
+          );
+        });
+      }
+    });
   }
 
   /// ================= FETCH =================
@@ -82,17 +102,21 @@ class SppController extends GetxController {
   }
 
   /// ================= STEP 1 =================
+
   void selectJenis(String jenis) {
     selectedJenis.value = jenis;
 
-    // reset
-    selectedMonths.clear();
-    selectedOtherPayment.value = null;
-    selectedSpp.clear();
-    totalNominal.value = 0;
-    totalPembayaran.value = 0;
+    // ⚠️ JANGAN reset state di sini
+    // ini cuma buat trigger dialog
 
-    step.value = 2;
+    if (jenis == "SPP") {
+      // kalau sebelumnya sudah ringkasan → langsung buka bulan
+      if (step.value >= 3) {
+        autoOpenMonthPicker.value = true;
+      } else {
+        step.value = 2;
+      }
+    }
   }
 
   /// ================= SPP =================
@@ -117,20 +141,56 @@ class SppController extends GetxController {
       );
     }
 
-    totalNominal.value = selectedSpp.fold(0, (sum, e) => sum + e.nominal);
-    totalPembayaran.value = totalNominal.value + adminFee;
+    // 🔥 hapus SPP lama aja
+    paymentItemsCart.removeWhere((e) => e["type"] == "SPP");
+
+    // 🔥 masukin SPP baru
+    for (final e in selectedSpp) {
+      sppOriginalNominal.putIfAbsent(e.id, () => e.nominal);
+      sppPaidMap[e.id] = e.nominal;
+
+      paymentItemsCart.add({
+        "type": "SPP",
+        "id": e.id,
+        "month": e.month,
+        "year": e.year,
+        "nominal": e.nominal,
+        "paid": e.paid,
+      });
+    }
+
+    recalculateTotal();
 
     step.value = 3;
   }
 
-  /// ================= OTHER =================
   void selectOther(OltherPayment other) {
     selectedOtherPayment.value = other;
 
-    totalNominal.value = other.amount;
-    totalPembayaran.value = totalNominal.value + adminFee;
+    // 🔥 hapus OTHER lama doang
+    paymentItemsCart.removeWhere((e) => e["type"] == "OTHER");
 
+    // 🔥 masukin OTHER baru
+    paymentItemsCart.add({
+      "type": "OTHER",
+      "id": other.id,
+      "name": other.type.name,
+      "nominal": other.amount,
+    });
+
+    recalculateTotal();
+
+    // ❌ jangan reset bulan / spp
     step.value = 3;
+  }
+
+  void recalculateTotal() {
+    totalNominal.value = paymentItemsCart.fold(
+      0,
+      (sum, e) => sum + (e["nominal"] as int),
+    );
+
+    totalPembayaran.value = totalNominal.value + adminFee;
   }
 
   /// ================= PAYMENT ITEMS =================
@@ -160,7 +220,28 @@ class SppController extends GetxController {
   }
 
   List<String> get monthList {
-    return sppList.map((e) => "${e.month}|${e.year}").toSet().toList();
+    final unique = sppList.map((e) => "${e.month}|${e.year}").toSet().toList();
+
+    unique.sort((a, b) {
+      final aSplit = a.split('|');
+      final bSplit = b.split('|');
+
+      final aYear = int.parse(aSplit[1]);
+      final bYear = int.parse(bSplit[1]);
+
+      // 1️⃣ urutin berdasarkan tahun
+      if (aYear != bYear) {
+        return aYear.compareTo(bYear);
+      }
+
+      // 2️⃣ kalau tahunnya sama, urutin bulan
+      final aMonth = monthToNumber(aSplit[0]);
+      final bMonth = monthToNumber(bSplit[0]);
+
+      return aMonth.compareTo(bMonth);
+    });
+
+    return unique;
   }
 
   String monthName(String month) {
@@ -217,13 +298,64 @@ class SppController extends GetxController {
     return true;
   }
 
+  void updateSppPaid(String sppId, int paid) {
+    final index = paymentItemsCart.indexWhere((e) => e["id"] == sppId);
+
+    if (index == -1) return;
+
+    final originalNominal = sppOriginalNominal[sppId]!;
+
+    int finalPaid;
+
+    if (paid <= 0) {
+      // ❗ user hapus cicilan → balik full
+      finalPaid = originalNominal;
+    } else if (paid > originalNominal) {
+      // ❗ cicilan gak boleh lebih besar
+      finalPaid = originalNominal;
+    } else {
+      // ✅ cicilan valid
+      finalPaid = paid;
+    }
+
+    sppPaidMap[sppId] = finalPaid;
+
+    paymentItemsCart[index]["paid"] = finalPaid;
+    paymentItemsCart[index]["nominal"] = originalNominal;
+
+    recalculateTotalWithPaid();
+  }
+
+  void recalculateTotalWithPaid() {
+    totalNominal.value = paymentItemsCart.fold(0, (sum, e) {
+      if (e["type"] == "SPP") {
+        return sum + (e["paid"] as int);
+      }
+      return sum + (e["nominal"] as int);
+    });
+
+    totalPembayaran.value = totalNominal.value + adminFee;
+  }
+
   void resetAll() {
     step.value = 1;
     selectedJenis.value = '';
+
     selectedMonths.clear();
+    tempSelectedMonths.clear();
+
     selectedOtherPayment.value = null;
+    tempSelectedOther.value = null;
+
     selectedSpp.clear();
+    paymentItemsCart.clear();
+
     totalNominal.value = 0;
     totalPembayaran.value = 0;
+  }
+
+  void resetStep() {
+    step.value = 1;
+    selectedJenis.value = '';
   }
 }

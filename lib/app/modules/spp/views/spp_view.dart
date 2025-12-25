@@ -1,9 +1,11 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:saku_walsan_app/app/core/types/rupiah_input_formatter.dart';
 import 'package:saku_walsan_app/app/modules/spp/controllers/spp_controller.dart';
 import 'package:saku_walsan_app/app/routes/app_pages.dart';
 
@@ -82,19 +84,34 @@ class SppView extends GetView<SppController> {
                 const SizedBox(height: 24),
 
                 Obx(() {
-                  final step = controller.step.value;
-                  // final sudahPilihBulan =
-                  //     controller.selectedJenis.value == "OTHER" ||
-                  //     controller.selectedMonths.isNotEmpty;
+                  if (controller.autoOpenMonthPicker.value &&
+                      !controller.isMonthDialogOpen.value) {
+                    controller.autoOpenMonthPicker.value = false;
+                    controller.isMonthDialogOpen.value = true;
 
-                  final sudahPilihBulan = controller.step.value == 3;
-                  // if (step < 3 || !sudahPilihBulan) {
-                  if (step < 3) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) async {
+                      _showMonthPickerDialog(context, controller);
+                      controller.isMonthDialogOpen.value = false;
+                    });
+                  }
+
+                  final step = controller.step.value;
+                  final isOther = controller.selectedJenis.value == "OTHER";
+
+                  // ✅ logic fix:
+                  // SPP -> harus step 3
+                  // OTHER -> cukup step 2 langsung dianggap ringkasan
+                  final sudahRingkasan = isOther ? step >= 2 : step >= 3;
+
+                  if (!sudahRingkasan) {
                     String placeholder;
+
                     if (step == 1) {
                       placeholder = "Silahkan Pilih Jenis Pembayaran";
                     } else {
-                      placeholder = "Silahkan Pilih Bulan Pembayaran";
+                      placeholder = isOther
+                          ? "Silahkan Pilih Pembayaran Lainnya"
+                          : "Silahkan Pilih Bulan Pembayaran";
                     }
 
                     return Column(
@@ -112,8 +129,12 @@ class SppView extends GetView<SppController> {
                           onTap: () {
                             if (step == 1) {
                               _showJenisDialog(context, controller);
-                            } else {
+                            } else if (step == 2 && !isOther) {
+                              // 🟢 SPP → pilih bulan
                               _showMonthPickerDialog(context, controller);
+                            } else if (step == 2 && isOther) {
+                              // 🟠 OTHER → pilih jenis other
+                              _showOtherDialog(context, controller);
                             }
                           },
                           child: Container(
@@ -144,6 +165,7 @@ class SppView extends GetView<SppController> {
                     );
                   }
 
+                  /// ✅ RINGKASAN MODE
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -154,10 +176,12 @@ class SppView extends GetView<SppController> {
                           fontSize: 16,
                         ),
                       ),
-
-                      /// ✅ HANYA PILIH JENIS
                       GestureDetector(
-                        onTap: () => _showJenisDialog(context, controller),
+                        onTap: () {
+                          controller.resetStep();
+                          _showJenisDialog(context, controller);
+                        },
+
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -186,26 +210,29 @@ class SppView extends GetView<SppController> {
                 const SizedBox(height: 16),
 
                 Obx(() {
-                  if (controller.step.value != 3) return const SizedBox();
+                  if (controller.paymentItemsCart.isEmpty) {
+                    return const SizedBox();
+                  }
 
-                  if (controller.selectedJenis.value == "OTHER" &&
-                      controller.selectedOtherPayment.value != null) {
-                    final other = controller.selectedOtherPayment.value!;
+                  final otherItem = controller.paymentItemsCart
+                      .firstWhereOrNull((e) => e["type"] == "OTHER");
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ===== KOTAK OTHER (MIRIP SPP) =====
+                  final sppItems = controller.paymentItemsCart
+                      .where((e) => e["type"] == "SPP")
+                      .toList();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ======================= OTHER =======================
+                      if (otherItem != null)
                         Container(
                           margin: const EdgeInsets.only(bottom: 14),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.grey.shade400,
-                              width: 1,
-                            ),
+                            border: Border.all(color: Colors.grey.shade400),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.06),
@@ -218,7 +245,132 @@ class SppView extends GetView<SppController> {
                             children: [
                               Row(
                                 children: [
-                                  // ✅ CHECK ICON (SELALU AKTIF)
+                                  Container(
+                                    width: 26,
+                                    height: 26,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.orange,
+                                      border: Border.all(
+                                        color: Colors.orange,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.check,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          formatRupiah(otherItem["nominal"]),
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          otherItem["name"],
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade50,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.orange.shade300,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "OTHER",
+                                      style: TextStyle(
+                                        color: Colors.orange,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: "Silahkan Masukan Cicilan",
+                                  filled: true,
+                                  fillColor: Colors.grey.shade100,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // ======================= SPP =======================
+                      ...sppItems.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        final isLast = index == sppItems.length - 1;
+                        final key = "${item["month"]}|${item["year"]}";
+
+                        // final cicilanCtrl = controller.cicilanControllers
+                        //     .putIfAbsent(key, () => TextEditingController());
+                        final sppId = item["id"];
+
+                        final cicilanCtrl = controller.cicilanControllers
+                            .putIfAbsent(sppId, () {
+                              final ctrl = TextEditingController();
+
+                              ctrl.addListener(() {
+                                final raw = ctrl.text.replaceAll(
+                                  RegExp(r'[^0-9]'),
+                                  '',
+                                );
+                                final value = int.tryParse(raw) ?? 0;
+
+                                controller.updateSppPaid(sppId, value);
+                              });
+
+                              return ctrl;
+                            });
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade400),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
                                   Container(
                                     width: 26,
                                     height: 26,
@@ -245,14 +397,14 @@ class SppView extends GetView<SppController> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          formatRupiah(other.amount),
+                                          formatRupiah(item["nominal"]),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          other.type.name,
+                                          "${controller.monthName(item["month"])} ${item["year"]}",
                                           style: TextStyle(
                                             fontSize: 13,
                                             color: Colors.grey.shade600,
@@ -262,218 +414,28 @@ class SppView extends GetView<SppController> {
                                     ),
                                   ),
 
+                                  // 🔥 BADGE SPP
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.orange.shade50,
+                                      color: const Color(
+                                        0xFF22C55E,
+                                      ).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: Colors.orange.shade300,
+                                        color: const Color(0xFF22C55E),
                                       ),
                                     ),
                                     child: const Text(
-                                      "OTHER",
+                                      "SPP",
                                       style: TextStyle(
-                                        color: Colors.orange,
+                                        color: Color(0xFF22C55E),
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              // OPTIONAL: CICILAN JUGA BISA
-                              TextField(
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  hintText: "Silahkan Masukan Cicilan",
-                                  filled: true,
-                                  fillColor: Colors.grey.shade100,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // ===== RINGKASAN (PAKAI YANG SAMA) =====
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1B8A4E),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Ringkasan:",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white),
-                                ),
-                                child: Column(
-                                  children: [
-                                    _summaryRow(
-                                      "Biaya Pokok:",
-                                      formatRupiah(
-                                        controller.totalNominal.toInt(),
-                                      ),
-                                    ),
-                                    _summaryRow(
-                                      "Biaya Admin:",
-                                      formatRupiah(
-                                        controller.totalAdmin.toInt(),
-                                      ),
-                                    ),
-                                    const Divider(
-                                      color: Colors.white,
-                                      thickness: 1,
-                                    ),
-                                    _summaryRow(
-                                      "Total Biaya:",
-                                      formatRupiah(
-                                        controller.totalPembayaran.toInt(),
-                                      ),
-                                      bold: true,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ...controller.selectedSpp.map((item) {
-                        final key = "${item.month}|${item.year}";
-                        final isSelected = controller.selectedMonths.contains(
-                          key,
-                        );
-
-                        final cicilanCtrl = controller.cicilanControllers
-                            .putIfAbsent(key, () => TextEditingController());
-
-                        final isLast =
-                            controller.selectedMonths.isNotEmpty &&
-                            key == controller.selectedMonths.last;
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 14),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade400),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      final temp = [
-                                        ...controller.selectedMonths,
-                                      ];
-
-                                      if (isSelected) {
-                                        temp.remove(key);
-                                      } else {
-                                        temp.add(key);
-                                      }
-
-                                      if (!controller.isSequentialAndNoSkip(
-                                        temp,
-                                      )) {
-                                        Get.snackbar(
-                                          "Peringatan",
-                                          "Harus memilih bulan secara berurutan",
-                                          backgroundColor: Colors.red,
-                                          colorText: Colors.white,
-                                        );
-                                        return;
-                                      }
-
-                                      controller.selectedMonths.assignAll(temp);
-                                      controller.buildSppSummary();
-                                    },
-                                    child: Container(
-                                      width: 26,
-                                      height: 26,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: isSelected
-                                            ? Colors.orange
-                                            : Colors.transparent,
-                                        border: Border.all(
-                                          color: isSelected
-                                              ? Colors.orange
-                                              : Colors.grey,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: isSelected
-                                          ? const Icon(
-                                              Icons.check,
-                                              size: 16,
-                                              color: Colors.white,
-                                            )
-                                          : null,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          formatRupiah(item.nominal),
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          "${controller.monthName(item.month)} ${item.year}",
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                   ),
                                 ],
@@ -485,6 +447,7 @@ class SppView extends GetView<SppController> {
                                   child: TextField(
                                     controller: cicilanCtrl,
                                     keyboardType: TextInputType.number,
+                                    inputFormatters: [RupiahInputFormatter()],
                                     decoration: InputDecoration(
                                       hintText: "Silahkan Masukan Cicilan",
                                       filled: true,
@@ -500,127 +463,113 @@ class SppView extends GetView<SppController> {
                         );
                       }),
 
-                      const SizedBox(height: 20),
-
-                      if (controller.step.value == 3)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1B8A4E),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Ringkasan:",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white),
-                                ),
-                                child: Column(
-                                  children: [
-                                    _summaryRow(
-                                      "Biaya Pokok:",
-                                      formatRupiah(
-                                        controller.totalNominal.value,
-                                      ),
-                                    ),
-                                    _summaryRow(
-                                      "Biaya Admin:",
-                                      formatRupiah(controller.totalAdmin.value),
-                                    ),
-                                    const Divider(color: Colors.white),
-                                    _summaryRow(
-                                      "Total Biaya:",
-                                      formatRupiah(
-                                        controller.totalPembayaran.value,
-                                      ),
-                                      bold: true,
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              // ===================== BUTTON BAYAR =====================
-                              SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF1B8A4E),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Get.toNamed(
-                                      Routes.METHOD_PEMBAYARAN,
-                                      arguments: {
-                                        "items":
-                                            controller.paymentItems, // ⬅️ FINAL
-                                        "total":
-                                            controller.totalPembayaran.value,
-                                        "nisn": nisn,
-                                      },
-                                    );
-
-                                    // reset state
-                                    controller.resetAll();
-                                  },
-                                  child: const Text(
-                                    "Bayar",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 14),
-
-                              // ===================== BUTTON BATALKAN =====================
-                              SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red.shade300,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    controller.resetAll();
-                                  },
-
-                                  child: const Text(
-                                    "Batalkan",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B8A4E),
+                          borderRadius: BorderRadius.circular(16),
                         ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Ringkasan:",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white),
+                              ),
+                              child: Column(
+                                children: [
+                                  _summaryRow(
+                                    "Biaya Pokok:",
+                                    formatRupiah(controller.totalNominal.value),
+                                  ),
+                                  _summaryRow(
+                                    "Biaya Admin:",
+                                    formatRupiah(controller.totalAdmin.value),
+                                  ),
+                                  const Divider(color: Colors.white),
+                                  _summaryRow(
+                                    "Total Biaya:",
+                                    formatRupiah(
+                                      controller.totalPembayaran.value,
+                                    ),
+                                    bold: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF1B8A4E),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Get.toNamed(
+                                    Routes.METHOD_PEMBAYARAN,
+                                    arguments: {
+                                      "items": controller.paymentItemsCart,
+                                      "total": controller.totalPembayaran.value,
+                                      "nisn": nisn,
+                                    },
+                                  );
+                                  controller.resetAll();
+                                },
+                                child: const Text(
+                                  "Bayar",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade300,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                onPressed: controller.resetAll,
+                                child: const Text(
+                                  "Batalkan",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   );
                 }),
@@ -933,6 +882,11 @@ class SppView extends GetView<SppController> {
 
                         if (item == "OTHER") {
                           _showOtherDialog(context, controller);
+                        } else {
+                          if (item == "SPP" &&
+                              controller.paymentItemsCart.isNotEmpty) {
+                            controller.autoOpenMonthPicker.value = true;
+                          }
                         }
                       },
 
